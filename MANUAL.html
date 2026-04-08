@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpecialPoints — Manual do Usuário</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --roxo:        #7c3aed;
+      --roxo-claro:  #ede9fe;
+      --rosa:        #ec4899;
+      --verde:       #10b981;
+      --verde-claro: #d1fae5;
+      --azul:        #3b82f6;
+      --azul-claro:  #dbeafe;
+      --amarelo:     #f59e0b;
+      --amarelo-claro: #fef3c7;
+      --cinza:       #64748b;
+      --cinza-claro: #f1f5f9;
+      --borda:       #e2e8f0;
+      --texto:       #1e293b;
+      --texto-suave: #64748b;
+      --branco:      #ffffff;
+      --grad:        linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--texto);
+      background: #f8fafc;
+      font-size: 15px;
+      line-height: 1.65;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: 100vh;
+    }
+
+    /* ── Sidebar ── */
+    aside {
+      background: #1e1b4b;
+      color: #fff;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 2rem;
+    }
+
+    .sidebar-logo {
+      background: var(--grad);
+      padding: 1.75rem 1.5rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .sidebar-logo .produto { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.02em; }
+    .sidebar-logo .subtitulo { font-size: 0.72rem; color: rgba(255,255,255,0.65); font-weight: 500; }
+
+    nav { padding: 1rem 0; flex: 1; }
+
+    .nav-grupo { margin-bottom: 0.25rem; }
+
+    .nav-grupo-titulo {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      padding: 0.75rem 1.5rem 0.35rem;
+    }
+
+    nav a {
+      display: block;
+      padding: 0.45rem 1.5rem;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+    nav a:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.07);
+      border-left-color: rgba(255,255,255,0.3);
+    }
+
+    .sidebar-versao {
+      padding: 1rem 1.5rem 0;
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.3);
+    }
+
+    /* ── Conteúdo principal ── */
+    main {
+      min-width: 0;
+      padding: 0;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      background: var(--grad);
+      color: #fff;
+      padding: 3.5rem 3rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 280px; height: 280px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: 80px;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      backdrop-filter: blur(8px);
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .hero h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 0.75rem;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.8);
+      max-width: 540px;
+    }
+
+    /* ── Seções ── */
+    .conteudo { padding: 2.5rem 3rem; max-width: 900px; }
+
+    section { margin-bottom: 3rem; }
+
+    h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--texto);
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 2px solid var(--borda);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    h2 .icone-secao {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--roxo-claro);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--texto);
+      margin: 1.5rem 0 0.6rem;
+    }
+
+    h4 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--roxo);
+      margin: 1.1rem 0 0.4rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    p { margin-bottom: 0.75rem; color: var(--texto); }
+
+    ul, ol {
+      padding-left: 1.4rem;
+      margin-bottom: 0.75rem;
+    }
+    li { margin-bottom: 0.3rem; }
+
+    strong { font-weight: 700; }
+
+    blockquote {
+      background: var(--amarelo-claro);
+      border-left: 4px solid var(--amarelo);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 0.75rem 0;
+      font-size: 0.88rem;
+    }
+    blockquote strong { color: #92400e; }
+
+    /* ── Cartões de papel / perfil ── */
+    .cards-papel {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+
+    .card-papel {
+      background: var(--branco);
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .card-papel:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+
+    .card-papel .papel-icone { font-size: 1.75rem; }
+    .card-papel .papel-nome { font-weight: 800; font-size: 0.95rem; }
+    .card-papel .papel-quem { font-size: 0.75rem; color: var(--roxo); font-weight: 600; }
+    .card-papel .papel-desc { font-size: 0.78rem; color: var(--texto-suave); line-height: 1.4; margin: 0; }
+
+    /* ── Fluxo ── */
+    .fluxo {
+      background: var(--branco);
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      margin: 1rem 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .fluxo-passo {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 0.6rem 0;
+      position: relative;
+    }
+    .fluxo-passo:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 36px;
+      width: 2px;
+      height: calc(100% - 12px);
+      background: var(--borda);
+    }
+
+    .fluxo-num {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--grad);
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .fluxo-texto strong { display: block; font-size: 0.9rem; }
+    .fluxo-texto span { font-size: 0.8rem; color: var(--texto-suave); }
+
+    /* ── Tabelas ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0 1.25rem;
+      font-size: 0.88rem;
+      background: var(--branco);
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    thead th {
+      background: var(--cinza-claro);
+      padding: 0.7rem 1rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--cinza);
+    }
+    tbody td { padding: 0.7rem 1rem; border-top: 1px solid var(--borda); }
+    tbody tr:hover { background: #f8fafc; }
+
+    /* ── Chips de status ── */
+    .chip {
+      display: inline-block;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .chip-roxo  { background: var(--roxo-claro); color: var(--roxo); }
+    .chip-verde { background: var(--verde-claro); color: #065f46; }
+    .chip-azul  { background: var(--azul-claro); color: #1e40af; }
+    .chip-amarelo { background: var(--amarelo-claro); color: #92400e; }
+
+    /* ── Badges de conquistas ── */
+    .grid-badges {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 0.85rem;
+      margin: 1rem 0;
+    }
+    .badge-item {
+      background: var(--branco);
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+      padding: 1rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.35rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+    .badge-item .bi { font-size: 1.75rem; }
+    .badge-item strong { font-size: 0.82rem; }
+    .badge-item span { font-size: 0.72rem; color: var(--texto-suave); line-height: 1.35; }
+
+    /* ── Notificações ── */
+    .notif-lista { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.75rem 0; }
+    .notif-item {
+      display: flex; align-items: center; gap: 0.75rem;
+      background: var(--branco); border: 1.5px solid var(--borda);
+      border-radius: 10px; padding: 0.65rem 1rem;
+      font-size: 0.85rem;
+    }
+    .notif-icone { font-size: 1.1rem; }
+    .notif-evento { flex: 1; font-weight: 600; }
+    .notif-quem { font-size: 0.75rem; color: var(--texto-suave); }
+
+    /* ── Segurança ── */
+    .seguranca-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 0.85rem;
+      margin: 0.75rem 0;
+    }
+    .seg-item {
+      background: var(--branco);
+      border: 1.5px solid var(--borda);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .seg-icone { font-size: 1.3rem; flex-shrink: 0; margin-top: 0.1rem; }
+    .seg-texto strong { display: block; font-size: 0.85rem; margin-bottom: 0.2rem; }
+    .seg-texto span { font-size: 0.75rem; color: var(--texto-suave); }
+
+    /* ── FAQ ── */
+    .faq { display: flex; flex-direction: column; gap: 0.85rem; margin-top: 0.5rem; }
+    .faq-item {
+      background: var(--branco);
+      border: 1.5px solid var(--borda);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .faq-pergunta {
+      padding: 1rem 1.25rem;
+      font-weight: 700;
+      font-size: 0.92rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      list-style: none;
+      user-select: none;
+    }
+    .faq-pergunta::marker { display: none; }
+    .faq-pergunta .faq-q {
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--roxo-claro); color: var(--roxo);
+      font-size: 0.7rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    details[open] .faq-pergunta { border-bottom: 1px solid var(--borda); }
+    .faq-resposta { padding: 0.9rem 1.25rem; font-size: 0.88rem; color: var(--texto-suave); line-height: 1.6; }
+
+    /* ── Passos numerados ── */
+    .passos { display: flex; flex-direction: column; gap: 0.5rem; margin: 0.75rem 0; }
+    .passo {
+      display: flex; align-items: flex-start; gap: 0.85rem;
+      background: var(--branco); border: 1.5px solid var(--borda);
+      border-radius: 10px; padding: 0.8rem 1rem;
+    }
+    .passo-num {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--grad); color: #fff;
+      font-size: 0.75rem; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .passo-texto { font-size: 0.88rem; padding-top: 0.1rem; }
+
+    /* ── Tabs de área ── */
+    .tabs-area {
+      display: flex; gap: 0.5rem;
+      background: var(--cinza-claro);
+      border-radius: 10px; padding: 0.3rem;
+      margin: 0.75rem 0 1.25rem;
+      width: fit-content;
+    }
+    .tab {
+      padding: 0.4rem 1rem;
+      border-radius: 8px;
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--texto-suave);
+    }
+    .tab.ativa { background: var(--branco); color: var(--roxo); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+    /* ── Rodapé ── */
+    footer {
+      margin-top: 2rem;
+      padding: 2rem 3rem;
+      border-top: 1px solid var(--borda);
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--texto-suave);
+      background: var(--branco);
+    }
+
+    /* ── Print ── */
+    @media print {
+      aside { display: none; }
+      .wrapper { grid-template-columns: 1fr; }
+      .hero { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .conteudo { padding: 1.5rem 2rem; }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 768px) {
+      .wrapper { grid-template-columns: 1fr; }
+      aside { position: static; height: auto; }
+      .hero { padding: 2rem 1.5rem; }
+      .hero h1 { font-size: 1.75rem; }
+      .conteudo { padding: 1.5rem; }
+      h2 { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- ── Sidebar ── -->
+  <aside>
+    <div class="sidebar-logo">
+      <span class="produto">⭐ SpecialPoints</span>
+      <span class="subtitulo">Manual do Usuário</span>
+    </div>
+    <nav>
+      <div class="nav-grupo">
+        <div class="nav-grupo-titulo">Introdução</div>
+        <a href="#visao-geral">O que é</a>
+        <a href="#para-quem">Para quem é</a>
+        <a href="#niveis">Níveis de acesso</a>
+        <a href="#fluxo">Fluxo de uso</a>
+      </div>
+      <div class="nav-grupo">
+        <div class="nav-grupo-titulo">Área CEO / Admin</div>
+        <a href="#ceo-dashboard">Dashboard</a>
+        <a href="#ceo-grupos">Grupos</a>
+      </div>
+      <div class="nav-grupo">
+        <div class="nav-grupo-titulo">Área do Responsável</div>
+        <a href="#resp-dashboard">Dashboard</a>
+        <a href="#resp-tarefas">Tarefas</a>
+        <a href="#resp-recompensas">Recompensas</a>
+        <a href="#resp-resgates">Resgates</a>
+        <a href="#resp-membros">Membros</a>
+      </div>
+      <div class="nav-grupo">
+        <div class="nav-grupo-titulo">Área do Filho</div>
+        <a href="#filho-dashboard">Dashboard</a>
+        <a href="#filho-tarefas">Tarefas</a>
+        <a href="#filho-premios">Prêmios</a>
+        <a href="#filho-conquistas">Conquistas</a>
+      </div>
+      <div class="nav-grupo">
+        <div class="nav-grupo-titulo">Sistema</div>
+        <a href="#notificacoes">Notificações</a>
+        <a href="#seguranca">Segurança</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </nav>
+    <div class="sidebar-versao">Versão 2.0 · Abril 2026</div>
+  </aside>
+
+  <!-- ── Conteúdo ── -->
+  <main>
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="hero-badge">Manual do Usuário · v2.0</div>
+      <h1>SpecialPoints</h1>
+      <p>Plataforma de pontos e recompensas que transforma a rotina das crianças em um jogo de conquistas.</p>
+    </div>
+
+    <div class="conteudo">
+
+      <!-- O que é -->
+      <section id="visao-geral">
+        <h2><span class="icone-secao">💡</span> O que é o SpecialPoints?</h2>
+        <p>O <strong>SpecialPoints</strong> é uma plataforma digital que transforma a rotina das crianças em um jogo de conquistas. Os pais criam tarefas, os filhos completam e ganham pontos, e trocam esses pontos por recompensas escolhidas pela própria família.</p>
+        <p><strong>Simples para os pais. Divertido para os filhos. Efetivo para todos.</strong></p>
+      </section>
+
+      <!-- Para quem -->
+      <section id="para-quem">
+        <h2><span class="icone-secao">👥</span> Para quem é?</h2>
+        <ul>
+          <li><strong>Famílias</strong> que querem engajar os filhos em responsabilidades do dia a dia</li>
+          <li><strong>Pais</strong> que buscam uma forma estruturada de recompensar bons hábitos</li>
+          <li><strong>Filhos</strong> que se motivam mais com metas visuais, pontos e prêmios</li>
+        </ul>
+      </section>
+
+      <!-- Níveis de acesso -->
+      <section id="niveis">
+        <h2><span class="icone-secao">🔑</span> Níveis de acesso</h2>
+        <p>O sistema possui quatro perfis distintos, cada um com sua área e permissões:</p>
+        <div class="cards-papel">
+          <div class="card-papel">
+            <div class="papel-icone">👑</div>
+            <div class="papel-nome">CEO / Admin</div>
+            <div class="papel-quem">Gestor da plataforma</div>
+            <p class="papel-desc">Gerencia todas as famílias, cria grupos e os primeiros acessos.</p>
+          </div>
+          <div class="card-papel">
+            <div class="papel-icone">🛡️</div>
+            <div class="papel-nome">Super Responsável</div>
+            <div class="papel-quem">Primeiro pai/mãe da família</div>
+            <p class="papel-desc">Cria outros responsáveis e filhos dentro da família.</p>
+          </div>
+          <div class="card-papel">
+            <div class="papel-icone">👨‍👩‍👧</div>
+            <div class="papel-nome">Responsável</div>
+            <div class="papel-quem">Pai, mãe ou tutor</div>
+            <p class="papel-desc">Cria tarefas, aprova conclusões, gerencia recompensas e resgates.</p>
+          </div>
+          <div class="card-papel">
+            <div class="papel-icone">🧒</div>
+            <div class="papel-nome">Filho</div>
+            <div class="papel-quem">A criança</div>
+            <p class="papel-desc">Conclui tarefas, acumula pontos e resgata recompensas.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Fluxo -->
+      <section id="fluxo">
+        <h2><span class="icone-secao">🔄</span> Fluxo básico de uso</h2>
+        <div class="fluxo">
+          <div class="fluxo-passo">
+            <div class="fluxo-num">1</div>
+            <div class="fluxo-texto">
+              <strong>CEO cria o grupo (família)</strong>
+              <span>Define o nome e cria o primeiro acesso com senha temporária</span>
+            </div>
+          </div>
+          <div class="fluxo-passo">
+            <div class="fluxo-num">2</div>
+            <div class="fluxo-texto">
+              <strong>Super Responsável acessa e troca a senha</strong>
+              <span>Troca obrigatória no primeiro login</span>
+            </div>
+          </div>
+          <div class="fluxo-passo">
+            <div class="fluxo-num">3</div>
+            <div class="fluxo-texto">
+              <strong>Super Responsável cadastra filhos e demais responsáveis</strong>
+              <span>Gerencia os membros da família</span>
+            </div>
+          </div>
+          <div class="fluxo-passo">
+            <div class="fluxo-num">4</div>
+            <div class="fluxo-texto">
+              <strong>Responsável cria tarefas e recompensas</strong>
+              <span>Define pontos, prazos e recorrência</span>
+            </div>
+          </div>
+          <div class="fluxo-passo">
+            <div class="fluxo-num">5</div>
+            <div class="fluxo-texto">
+              <strong>Filho conclui tarefas e ganha pontos</strong>
+              <span>Responsável aprova e os pontos são creditados</span>
+            </div>
+          </div>
+          <div class="fluxo-passo">
+            <div class="fluxo-num">6</div>
+            <div class="fluxo-texto">
+              <strong>Filho resgata recompensas</strong>
+              <span>Responsável aprova e marca como entregue</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── CEO ── -->
+      <section id="ceo-dashboard">
+        <h2><span class="icone-secao">📊</span> CEO — Dashboard</h2>
+        <p>Visão geral de toda a plataforma em tempo real:</p>
+        <table>
+          <thead><tr><th>Indicador</th><th>O que mostra</th></tr></thead>
+          <tbody>
+            <tr><td>👨‍👩‍👧 Grupos</td><td>Total de famílias cadastradas</td></tr>
+            <tr><td>👤 Usuários</td><td>Total de membros ativos</td></tr>
+            <tr><td>✅ Tarefas</td><td>Total de tarefas criadas</td></tr>
+            <tr><td>💸 Transações</td><td>Movimentações de pontos</td></tr>
+            <tr><td>🎁 Resgates</td><td>Resgates realizados</td></tr>
+            <tr><td>🔔 Notif. não lidas</td><td>Alertas pendentes no sistema</td></tr>
+          </tbody>
+        </table>
+        <p>Inclui também gráfico de rosca (distribuição geral) e ranking de famílias por número de membros.</p>
+      </section>
+
+      <section id="ceo-grupos">
+        <h2><span class="icone-secao">👨‍👩‍👧</span> CEO — Gerenciamento de Grupos</h2>
+        <h3>Criar um grupo (família)</h3>
+        <div class="passos">
+          <div class="passo"><div class="passo-num">1</div><div class="passo-texto">Acesse <strong>Grupos → Novo grupo</strong></div></div>
+          <div class="passo"><div class="passo-num">2</div><div class="passo-texto">Informe o nome da família</div></div>
+          <div class="passo"><div class="passo-num">3</div><div class="passo-texto">Acesse o grupo criado e clique em <strong>Adicionar membro</strong></div></div>
+          <div class="passo"><div class="passo-num">4</div><div class="passo-texto">Preencha nome, e-mail, papel <em>(Super Responsável)</em> e senha temporária</div></div>
+        </div>
+        <blockquote><strong>Atenção:</strong> O usuário criado pelo CEO será obrigado a trocar a senha no primeiro acesso.</blockquote>
+        <h3>Outras ações disponíveis</h3>
+        <ul>
+          <li>Renomear um grupo</li>
+          <li>Visualizar todos os membros com papel e pontos</li>
+          <li>Desativar ou reativar grupos</li>
+        </ul>
+      </section>
+
+      <!-- ── Responsável ── -->
+      <section id="resp-dashboard">
+        <h2><span class="icone-secao">🏠</span> Responsável — Dashboard</h2>
+        <p>Resumo completo da família:</p>
+        <ul>
+          <li>Gráfico de rosca com distribuição de tarefas por status</li>
+          <li>Barras comparativas de pontos entre os filhos</li>
+          <li>Cards de membros ativos</li>
+          <li>Tarefas aguardando aprovação em destaque</li>
+        </ul>
+      </section>
+
+      <section id="resp-tarefas">
+        <h2><span class="icone-secao">✅</span> Responsável — Tarefas</h2>
+        <h3>Criar uma tarefa</h3>
+        <div class="passos">
+          <div class="passo"><div class="passo-num">1</div><div class="passo-texto">Clique em <strong>+ Nova tarefa</strong></div></div>
+          <div class="passo"><div class="passo-num">2</div><div class="passo-texto">Preencha título, pontos e atribua a um filho</div></div>
+          <div class="passo"><div class="passo-num">3</div><div class="passo-texto"><strong>(Opcional)</strong> Defina recorrência: Diária, Semanal ou Mensal</div></div>
+          <div class="passo"><div class="passo-num">4</div><div class="passo-texto"><strong>(Opcional)</strong> Defina data de vencimento</div></div>
+          <div class="passo"><div class="passo-num">5</div><div class="passo-texto">Clique em <strong>Criar</strong> — o filho é notificado automaticamente</div></div>
+        </div>
+
+        <h3>Aprovação de tarefas</h3>
+        <p>Quando o filho marca uma tarefa como feita, o status muda para <span class="chip chip-azul">Aguardando</span>. O responsável pode:</p>
+        <ul>
+          <li><strong>Aprovar</strong> → pontos creditados automaticamente ao filho</li>
+          <li><strong>Rejeitar</strong> → com ou sem observação; filho é notificado com o motivo</li>
+        </ul>
+
+        <h3>Tarefas recorrentes</h3>
+        <p>Ao aprovar uma tarefa com recorrência configurada, uma nova cópia é criada automaticamente com o próximo prazo calculado. Não é necessário recriar manualmente.</p>
+
+        <h3>Indicadores visuais</h3>
+        <table>
+          <thead><tr><th>Badge</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td>🔄 Diária / Semanal / Mensal</td><td>Tarefa recorrente</td></tr>
+            <tr><td>📅 data</td><td>Prazo definido</td></tr>
+            <tr><td>⚠️ Atrasada</td><td>Prazo vencido com tarefa ainda aberta</td></tr>
+            <tr><td><span class="chip chip-azul">Aguardando</span></td><td>Filho concluiu, esperando aprovação</td></tr>
+            <tr><td><span class="chip chip-verde">Concluída</span></td><td>Aprovada e pontos creditados</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="resp-recompensas">
+        <h2><span class="icone-secao">🎁</span> Responsável — Recompensas</h2>
+        <h3>Criar uma recompensa</h3>
+        <div class="passos">
+          <div class="passo"><div class="passo-num">1</div><div class="passo-texto">Clique em <strong>+ Nova recompensa</strong></div></div>
+          <div class="passo"><div class="passo-num">2</div><div class="passo-texto">Defina título e custo em pontos</div></div>
+          <div class="passo"><div class="passo-num">3</div><div class="passo-texto">Defina estoque (deixe vazio para ilimitado)</div></div>
+          <div class="passo"><div class="passo-num">4</div><div class="passo-texto">Salve — a recompensa aparece imediatamente na loja dos filhos</div></div>
+        </div>
+
+        <h3>Seções da tela</h3>
+        <table>
+          <thead><tr><th>Seção</th><th>O que aparece</th><th>Visível para filhos?</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Disponíveis</strong></td><td>Ativas com estoque</td><td>✅ Sim</td></tr>
+            <tr><td><strong>Esgotadas / Desativadas</strong></td><td>Sem estoque ou desativadas</td><td>❌ Não</td></tr>
+          </tbody>
+        </table>
+        <blockquote>Ao desativar uma recompensa, ela some da loja dos filhos instantaneamente.</blockquote>
+      </section>
+
+      <section id="resp-resgates">
+        <h2><span class="icone-secao">🛒</span> Responsável — Resgates</h2>
+        <p>Painel com todos os pedidos de resgate dos filhos. Filtre por status:</p>
+        <div class="tabs-area">
+          <span class="tab ativa">Todos</span>
+          <span class="tab">Pendentes</span>
+          <span class="tab">Aprovados</span>
+          <span class="tab">Entregues</span>
+          <span class="tab">Recusados</span>
+        </div>
+        <table>
+          <thead><tr><th>Ação</th><th>O que acontece</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Aprovar</strong></td><td>Confirma o resgate (pontos já foram descontados no momento do pedido)</td></tr>
+            <tr><td><strong>Recusar</strong></td><td>Os pontos são devolvidos automaticamente ao filho</td></tr>
+            <tr><td><strong>Marcar como entregue</strong></td><td>Registra que a recompensa física foi entregue</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="resp-membros">
+        <h2><span class="icone-secao">👥</span> Responsável — Membros</h2>
+        <p>Lista de todos os integrantes da família com papel, pontos (somente filhos) e status. <strong>Super Responsáveis</strong> podem adicionar novos membros diretamente por aqui, definindo nome, e-mail, papel e senha temporária.</p>
+      </section>
+
+      <!-- ── Filho ── -->
+      <section id="filho-dashboard">
+        <h2><span class="icone-secao">🧒</span> Filho — Dashboard</h2>
+        <p>Interface otimizada para celular, com navegação por abas na parte inferior da tela.</p>
+        <ul>
+          <li><strong>Seus pontos</strong> — saldo atual em destaque, com animação</li>
+          <li><strong>Pontos essa semana</strong> — bônus acumulado nos últimos 7 dias</li>
+          <li><strong>Metas ativas</strong> — barra de progresso para cada meta em andamento</li>
+          <li><strong>Para fazer</strong> — tarefas pendentes com botão <em>"Feito!"</em> para marcar como concluída</li>
+          <li><strong>Avisos</strong> — notificações recentes</li>
+        </ul>
+      </section>
+
+      <section id="filho-tarefas">
+        <h2><span class="icone-secao">📋</span> Filho — Tarefas</h2>
+        <p>Lista de todas as tarefas atribuídas ao filho com filtros por status. Cada tarefa exibe os pontos, prazo (se houver) e indicador visual de urgência. Ao clicar em <strong>"Feito!"</strong>, a tarefa entra em modo de espera até o responsável aprovar.</p>
+      </section>
+
+      <section id="filho-premios">
+        <h2><span class="icone-secao">🏆</span> Filho — Prêmios</h2>
+        <h4>Aba Loja</h4>
+        <p>Todas as recompensas disponíveis com barra de progresso mostrando quantos pontos faltam. O botão <strong>🎉 Resgatar</strong> é habilitado automaticamente quando o saldo é suficiente. Ao resgatar, os pontos são descontados e o pedido fica pendente até aprovação.</p>
+
+        <h4>Aba Resgates</h4>
+        <p>Histórico de pedidos com status visual por cor:</p>
+        <table>
+          <thead><tr><th>Cor</th><th>Status</th><th>Significado</th></tr></thead>
+          <tbody>
+            <tr><td><span class="chip chip-amarelo">●</span></td><td>Pendente</td><td>Aguardando aprovação do responsável</td></tr>
+            <tr><td><span class="chip chip-roxo">●</span></td><td>Aprovado</td><td>Aprovado, aguardando entrega</td></tr>
+            <tr><td><span class="chip chip-verde">●</span></td><td>Entregue</td><td>Recompensa entregue</td></tr>
+            <tr><td><span style="background:#fee2e2;color:#991b1b" class="chip">●</span></td><td>Recusado</td><td>Recusado e pontos devolvidos</td></tr>
+          </tbody>
+        </table>
+
+        <h4>Aba Histórico</h4>
+        <p>Extrato completo de movimentações de pontos: cada tarefa aprovada, bônus recebido e resgate feito, com data e valor (em verde para créditos, vermelho para débitos).</p>
+      </section>
+
+      <section id="filho-conquistas">
+        <h2><span class="icone-secao">🥇</span> Filho — Conquistas</h2>
+        <p>Galeria de badges desbloqueáveis. Os bloqueados aparecem como desafios a alcançar; os desbloqueados mostram a data em que foram conquistados.</p>
+        <div class="grid-badges">
+          <div class="badge-item"><div class="bi">🌟</div><strong>Primeira tarefa!</strong><span>Conclua sua primeira tarefa</span></div>
+          <div class="badge-item"><div class="bi">🔥</div><strong>Dedicado</strong><span>Conclua 10 tarefas</span></div>
+          <div class="badge-item"><div class="bi">🏆</div><strong>Campeão</strong><span>Conclua 50 tarefas</span></div>
+          <div class="badge-item"><div class="bi">🎯</div><strong>Meta atingida!</strong><span>Conclua sua primeira meta</span></div>
+          <div class="badge-item"><div class="bi">🎁</div><strong>Primeiro prêmio!</strong><span>Faça seu primeiro resgate</span></div>
+          <div class="badge-item"><div class="bi">💯</div><strong>Centenário</strong><span>Acumule 100 pontos</span></div>
+          <div class="badge-item"><div class="bi">💎</div><strong>Explorador</strong><span>Acumule 500 pontos</span></div>
+          <div class="badge-item"><div class="bi">👑</div><strong>Lendário</strong><span>Acumule 1000 pontos</span></div>
+        </div>
+      </section>
+
+      <!-- Notificações -->
+      <section id="notificacoes">
+        <h2><span class="icone-secao">🔔</span> Notificações automáticas</h2>
+        <p>Todos os eventos importantes geram notificações automáticas dentro da plataforma:</p>
+        <div class="notif-lista">
+          <div class="notif-item"><div class="notif-icone">📌</div><div class="notif-evento">Tarefa atribuída</div><div class="notif-quem">→ Filho</div></div>
+          <div class="notif-item"><div class="notif-icone">⏳</div><div class="notif-evento">Tarefa concluída (aguardando aprovação)</div><div class="notif-quem">→ Responsável</div></div>
+          <div class="notif-item"><div class="notif-icone">✅</div><div class="notif-evento">Tarefa aprovada</div><div class="notif-quem">→ Filho</div></div>
+          <div class="notif-item"><div class="notif-icone">❌</div><div class="notif-evento">Tarefa rejeitada (com motivo)</div><div class="notif-quem">→ Filho</div></div>
+          <div class="notif-item"><div class="notif-icone">🎯</div><div class="notif-evento">Meta atingida</div><div class="notif-quem">→ Filho</div></div>
+          <div class="notif-item"><div class="notif-icone">🛒</div><div class="notif-evento">Resgate solicitado</div><div class="notif-quem">→ Responsável</div></div>
+          <div class="notif-item"><div class="notif-icone">🎁</div><div class="notif-evento">Resgate aprovado / recusado</div><div class="notif-quem">→ Filho</div></div>
+          <div class="notif-item"><div class="notif-icone">🔄</div><div class="notif-evento">Tarefa recorrente renovada</div><div class="notif-quem">→ Filho</div></div>
+        </div>
+      </section>
+
+      <!-- Segurança -->
+      <section id="seguranca">
+        <h2><span class="icone-secao">🔒</span> Segurança e acesso</h2>
+        <div class="seguranca-grid">
+          <div class="seg-item"><div class="seg-icone">🔑</div><div class="seg-texto"><strong>Autenticação JWT</strong><span>Tokens seguros com expiração automática</span></div></div>
+          <div class="seg-item"><div class="seg-icone">🏠</div><div class="seg-texto"><strong>Isolamento por família</strong><span>Cada família só acessa seus próprios dados</span></div></div>
+          <div class="seg-item"><div class="seg-icone">🔐</div><div class="seg-texto"><strong>Senhas com bcrypt</strong><span>Criptografia forte, sem armazenamento em texto</span></div></div>
+          <div class="seg-item"><div class="seg-icone">🔄</div><div class="seg-texto"><strong>Troca obrigatória</strong><span>Senha temporária trocada no primeiro acesso</span></div></div>
+          <div class="seg-item"><div class="seg-icone">🛡️</div><div class="seg-texto"><strong>Controle de papéis</strong><span>Cada perfil acessa apenas sua própria área</span></div></div>
+          <div class="seg-item"><div class="seg-icone">⚡</div><div class="seg-texto"><strong>Auto-refresh de token</strong><span>Sessão renovada automaticamente sem logout</span></div></div>
+        </div>
+      </section>
+
+      <!-- FAQ -->
+      <section id="faq">
+        <h2><span class="icone-secao">❓</span> Perguntas frequentes</h2>
+        <div class="faq">
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>Os pontos expiram?</summary>
+            <div class="faq-resposta">Não. Os pontos acumulados ficam no histórico para sempre e podem ser consultados a qualquer momento na aba Histórico.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>O que acontece se um resgate for recusado?</summary>
+            <div class="faq-resposta">Os pontos são devolvidos automaticamente ao saldo do filho assim que o responsável recusar o pedido.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>Posso desativar uma tarefa sem excluí-la?</summary>
+            <div class="faq-resposta">Sim. O botão Ativa/Inativa oculta a tarefa do filho sem apagá-la. Você pode reativá-la a qualquer momento.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>Uma tarefa recorrente pode ter prazo?</summary>
+            <div class="faq-resposta">Sim. Defina a data de vencimento na criação; a cada renovação, o prazo avança automaticamente pelo período configurado (1 dia, 7 dias ou 30 dias).</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>O filho pode ver recompensas sem estoque?</summary>
+            <div class="faq-resposta">Não. Recompensas esgotadas ou desativadas são automaticamente ocultadas da loja dos filhos.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>Como adicionar mais membros à família?</summary>
+            <div class="faq-resposta">O Super Responsável acessa a aba <strong>Membros</strong> e clica em <strong>+ Adicionar membro</strong>, definindo nome, e-mail, papel e senha temporária.</div>
+          </details>
+          <details class="faq-item">
+            <summary class="faq-pergunta"><span class="faq-q">Q</span>Quantas famílias posso cadastrar?</summary>
+            <div class="faq-resposta">Não há limite. O CEO pode criar e gerenciar quantos grupos quiser, cada um completamente isolado dos outros.</div>
+          </details>
+        </div>
+      </section>
+
+    </div><!-- /conteudo -->
+
+    <footer>
+      <strong>SpecialPoints</strong> · Sistema de pontos e recompensas para famílias · v2.0 · Abril 2026
+    </footer>
+
+  </main>
+</div>
+
+</body>
+</html>
