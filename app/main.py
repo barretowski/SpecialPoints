@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, usuarios
+from app.routers import auth, metas, notificacoes, recompensas, resgates, tarefas, transacoes, usuarios
 
 app = FastAPI(
     title="SpecialPoints API",
     description="Sistema de pontos e recompensas para famílias",
-    version="1.0.0",
+    version="2.0.0",
 )
 
 app.add_middleware(
@@ -19,8 +19,14 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(usuarios.router)
+app.include_router(tarefas.router)
+app.include_router(recompensas.router)
+app.include_router(metas.router)
+app.include_router(resgates.router)
+app.include_router(transacoes.router)
+app.include_router(notificacoes.router)
 
 
 @app.get("/", tags=["Health"])
 async def health():
-    return {"status": "ok", "servico": "SpecialPoints API"}
+    return {"status": "ok", "servico": "SpecialPoints API", "versao": "2.0.0"}
