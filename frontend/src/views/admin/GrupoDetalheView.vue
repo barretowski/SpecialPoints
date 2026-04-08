@@ -44,10 +44,16 @@
 
       <!-- Membros -->
       <section class="secao">
-        <h2 class="secao-titulo">Membros</h2>
+        <div class="secao-header">
+          <h2 class="secao-titulo">Membros</h2>
+          <button class="btn btn-primario btn-sm" @click="modalMembro.aberto = true">+ Adicionar membro</button>
+        </div>
 
         <div v-if="carregandoMembros" class="carregando">Carregando membros…</div>
-        <div v-else-if="!membros.length" class="vazio">Nenhum membro neste grupo.</div>
+        <div v-else-if="!membros.length" class="vazio">
+          <p>Nenhum membro ainda.</p>
+          <button class="btn btn-primario" style="margin-top:1rem" @click="modalMembro.aberto = true">Criar primeiro responsável</button>
+        </div>
 
         <div v-else class="tabela-wrap">
           <table class="tabela">
@@ -91,11 +97,53 @@
     </template>
 
     <div v-else class="vazio">Grupo não encontrado.</div>
+
+    <!-- Modal adicionar membro -->
+    <div v-if="modalMembro.aberto" class="overlay" @click.self="fecharModalMembro">
+      <div class="modal card">
+        <h2 class="modal-titulo">Adicionar membro</h2>
+        <form @submit.prevent="criarMembro">
+          <div class="campo">
+            <label for="m-nome">Nome</label>
+            <input id="m-nome" v-model="modalMembro.nome" type="text" placeholder="Nome completo" required />
+          </div>
+          <div class="campo">
+            <label for="m-email">E-mail</label>
+            <input id="m-email" v-model="modalMembro.email" type="email" placeholder="email@exemplo.com" required />
+          </div>
+          <div class="campo">
+            <label for="m-senha">Senha inicial</label>
+            <input id="m-senha" v-model="modalMembro.senha" type="password" placeholder="mínimo 6 caracteres" required minlength="6" />
+          </div>
+          <div class="campo">
+            <label for="m-papel">Papel</label>
+            <select id="m-papel" v-model="modalMembro.papel">
+              <option value="super_responsavel">Super Admin da família (recomendado para o 1º acesso)</option>
+              <option value="responsavel">Responsável</option>
+              <option value="filho">Filho(a)</option>
+            </select>
+          </div>
+          <p class="dica-texto" v-if="modalMembro.papel === 'super_responsavel'">
+            O Super Admin pode criar outros responsáveis e filhos dentro da família.
+          </p>
+          <p class="dica-texto" v-else-if="modalMembro.papel === 'responsavel'">
+            O Responsável gerencia tarefas e recompensas, mas não pode criar membros.
+          </p>
+          <p v-if="modalMembro.erro" class="erro-texto">{{ modalMembro.erro }}</p>
+          <div class="modal-acoes">
+            <button type="button" class="btn btn-secundario" @click="fecharModalMembro">Cancelar</button>
+            <button type="submit" class="btn btn-primario" :disabled="modalMembro.salvando">
+              {{ modalMembro.salvando ? 'Criando…' : 'Criar membro' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { adminService } from '@/services'
 
@@ -108,6 +156,45 @@ const carregandoMembros = ref(true)
 const editando = ref(false)
 const nomeEdit = ref('')
 const salvando = ref(false)
+
+const modalMembro = reactive({
+  aberto: false,
+  nome: '',
+  email: '',
+  senha: '',
+  papel: 'super_responsavel',
+  erro: '',
+  salvando: false,
+})
+
+function fecharModalMembro() {
+  modalMembro.aberto = false
+  modalMembro.nome = ''
+  modalMembro.email = ''
+  modalMembro.senha = ''
+  modalMembro.papel = 'responsavel'
+  modalMembro.erro = ''
+}
+
+async function criarMembro() {
+  modalMembro.erro = ''
+  modalMembro.salvando = true
+  try {
+    await adminService.criarMembro(grupo.value.id, {
+      nome: modalMembro.nome,
+      email: modalMembro.email,
+      senha: modalMembro.senha,
+      papel: modalMembro.papel,
+    })
+    fecharModalMembro()
+    await carregarMembros()
+    await carregarGrupo() // atualiza o contador de membros
+  } catch (e) {
+    modalMembro.erro = e.response?.data?.detail || 'Erro ao criar membro.'
+  } finally {
+    modalMembro.salvando = false
+  }
+}
 
 async function carregarGrupo() {
   const resp = await adminService.obterGrupo(route.params.id)
@@ -227,7 +314,8 @@ onMounted(async () => {
 .stat-mini-label { font-size: 0.8rem; color: var(--cor-texto-suave); margin-top: 0.2rem; }
 
 .secao { margin-top: 1.5rem; }
-.secao-titulo { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+.secao-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+.secao-titulo { font-size: 1.1rem; font-weight: 600; }
 
 .tabela-wrap { overflow-x: auto; }
 
@@ -298,6 +386,53 @@ onMounted(async () => {
 .btn-ativar:hover { background: #c8e6c9; }
 .btn-desativar { background: #ffebee; color: #c62828; }
 .btn-desativar:hover { background: #ffcdd2; }
+
+/* Modal */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 1rem;
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.modal-titulo { font-size: 1.2rem; font-weight: 700; }
+
+.modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.btn-secundario {
+  background: var(--cor-fundo);
+  border: 1px solid var(--cor-borda);
+  color: var(--cor-texto);
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--raio);
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.dica-texto {
+  font-size: 0.83rem;
+  color: var(--cor-texto-suave);
+  background: #f0eeff;
+  border-radius: var(--raio);
+  padding: 0.6rem 0.85rem;
+  border-left: 3px solid var(--cor-primaria);
+}
 
 .vazio {
   text-align: center;

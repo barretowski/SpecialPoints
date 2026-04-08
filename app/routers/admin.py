@@ -17,6 +17,7 @@ from app.models.transacao_ponto import TransacaoPonto
 from app.models.usuario import PapelUsuario, Usuario
 from app.schemas.paginacao import Paginacao
 from app.schemas.usuario import AtualizarUsuarioInput, UsuarioPublico
+from app.services.auth import hash_senha
 
 
 class FamiliaInput(BaseModel):
@@ -24,6 +25,12 @@ class FamiliaInput(BaseModel):
 
 class FamiliaAtualizarInput(BaseModel):
     nome: str | None = None
+
+class CriarMembroInput(BaseModel):
+    nome: str
+    email: str
+    senha: str
+    papel: PapelUsuario = PapelUsuario.responsavel
 
 
 def _gerar_codigo(tamanho: int = 8) -> str:
@@ -176,6 +183,38 @@ async def listar_membros_familia(
         await db.execute(select(Usuario).where(Usuario.familia_id == familia_id).order_by(Usuario.papel))
     ).scalars().all()
     return membros
+
+
+@router.post("/familias/{familia_id}/membros", response_model=UsuarioPublico, status_code=status.HTTP_201_CREATED)
+async def criar_membro(
+    familia_id: int,
+    dados: CriarMembroInput,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    familia = (await db.execute(select(Familia).where(Familia.id == familia_id))).scalar_one_or_none()
+    if not familia:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Família não encontrada")
+
+    email_existente = (await db.execute(select(Usuario).where(Usuario.email == dados.email))).scalar_one_or_none()
+    if email_existente:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-mail já cadastrado")
+
+    if dados.papel == PapelUsuario.admin:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Não é possível criar usuário admin por aqui")
+
+    usuario = Usuario(
+        familia_id=familia_id,
+        nome=dados.nome,
+        email=dados.email,
+        senha_hash=hash_senha(dados.senha),
+        papel=dados.papel,
+        deve_trocar_senha=True,
+    )
+    db.add(usuario)
+    await db.commit()
+    await db.refresh(usuario)
+    return usuario
 
 
 @router.delete("/familias/{familia_id}", status_code=status.HTTP_204_NO_CONTENT)

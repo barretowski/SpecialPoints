@@ -10,6 +10,7 @@
         <RouterLink to="/responsavel/tarefas" class="nav-item">✅ Tarefas</RouterLink>
         <RouterLink to="/responsavel/recompensas" class="nav-item">🎁 Recompensas</RouterLink>
         <RouterLink to="/responsavel/membros" class="nav-item">👨‍👩‍👧 Membros</RouterLink>
+        <RouterLink to="/responsavel/resgates" class="nav-item">🎁 Resgates</RouterLink>
       </nav>
       <button class="btn-sair" @click="sair">Sair</button>
     </aside>

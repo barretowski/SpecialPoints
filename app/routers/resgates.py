@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.database import get_db
 from app.dependencies import get_usuario_atual, requer_responsavel
@@ -76,29 +77,35 @@ async def solicitar_resgate(
     return resgate
 
 
-@router.get("/", response_model=list[ResgatePublico])
+@router.get("/")
 async def listar_resgates(
+    status_filtro: StatusResgate | None = None,
     usuario: Usuario = Depends(get_usuario_atual),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Resgate)
+    query = select(Resgate).options(selectinload(Resgate.usuario), selectinload(Resgate.recompensa))
 
     if usuario.papel == PapelUsuario.filho:
         query = query.where(Resgate.usuario_id == usuario.id)
     else:
-        # Responsável vê resgates de toda a família
-        from sqlalchemy import select as sel
-        filhos_ids = await db.execute(
-            sel(Usuario.id).where(
-                Usuario.familia_id == usuario.familia_id,
-                Usuario.ativo == True,
-            )
-        )
-        ids = [r for r in filhos_ids.scalars()]
-        query = query.where(Resgate.usuario_id.in_(ids))
+        ids_familia = (await db.execute(
+            select(Usuario.id).where(Usuario.familia_id == usuario.familia_id, Usuario.ativo == True)
+        )).scalars().all()
+        query = query.where(Resgate.usuario_id.in_(ids_familia))
 
-    resultado = await db.execute(query.order_by(Resgate.criado_em.desc()))
-    return resultado.scalars().all()
+    if status_filtro:
+        query = query.where(Resgate.status == status_filtro)
+
+    resgates = (await db.execute(query.order_by(Resgate.criado_em.desc()))).scalars().all()
+
+    return [
+        {
+            **ResgatePublico.model_validate(r).model_dump(),
+            "nome_usuario": r.usuario.nome if r.usuario else None,
+            "titulo_recompensa": r.recompensa.titulo if r.recompensa else None,
+        }
+        for r in resgates
+    ]
 
 
 @router.patch("/{resgate_id}", response_model=ResgatePublico)

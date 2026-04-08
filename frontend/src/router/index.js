@@ -15,6 +15,13 @@ const routes = [
     meta: { publica: true },
   },
 
+  {
+    path: '/trocar-senha',
+    name: 'trocar-senha',
+    component: () => import('@/views/TrocarSenhaView.vue'),
+    meta: { trocarSenha: true },
+  },
+
   // Responsável
   {
     path: '/responsavel',
@@ -26,6 +33,7 @@ const routes = [
       { path: 'tarefas', name: 'responsavel-tarefas', component: () => import('@/views/responsavel/TarefasView.vue') },
       { path: 'recompensas', name: 'responsavel-recompensas', component: () => import('@/views/responsavel/RecompensasView.vue') },
       { path: 'membros', name: 'responsavel-membros', component: () => import('@/views/responsavel/MembrosView.vue') },
+      { path: 'resgates', name: 'responsavel-resgates', component: () => import('@/views/responsavel/ResgatesView.vue') },
     ],
   },
 
@@ -68,7 +76,12 @@ router.beforeEach((to) => {
   const auth = useAuthStore()
 
   // Não autenticado tentando acessar rota protegida
-  if (!to.meta.publica && !auth.autenticado) return '/login'
+  if (!to.meta.publica && !to.meta.trocarSenha && !auth.autenticado) return '/login'
+
+  // Usuário autenticado que precisa trocar senha — bloqueia qualquer outra rota
+  if (auth.autenticado && auth.usuario?.deve_trocar_senha && !to.meta.trocarSenha) {
+    return '/trocar-senha'
+  }
 
   // Autenticado tentando acessar login/registro → redireciona para home
   if (to.meta.publica && auth.autenticado) {
@@ -82,8 +95,11 @@ router.beforeEach((to) => {
     return
   }
 
-  // Verifica papel necessário para a rota
-  if (to.meta.papel && auth.usuario?.papel !== to.meta.papel) {
+  // super_responsavel e responsavel usam a mesma área /responsavel
+  const papelRota = to.meta.papel
+  const papel = auth.usuario?.papel
+  if (papelRota === 'responsavel' && ['super_responsavel', 'responsavel'].includes(papel)) return
+  if (papelRota && papel !== papelRota) {
     return auth.ehResponsavel ? '/responsavel/dashboard' : '/filho/dashboard'
   }
 })

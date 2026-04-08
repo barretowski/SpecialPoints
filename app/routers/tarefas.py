@@ -65,7 +65,7 @@ async def listar_tarefas(
     query = select(Tarefa).where(Tarefa.familia_id == usuario.familia_id)
 
     if usuario.papel == PapelUsuario.filho:
-        query = query.where(Tarefa.atribuido_a_id == usuario.id)
+        query = query.where(Tarefa.atribuido_a_id == usuario.id, Tarefa.ativa == True)
 
     if status_filtro:
         query = query.where(Tarefa.status == status_filtro)

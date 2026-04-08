@@ -1,11 +1,25 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
-from app.dependencies import get_usuario_atual, requer_responsavel
+from app.dependencies import get_usuario_atual, requer_responsavel, requer_super_responsavel
 from app.models.usuario import PapelUsuario, Usuario
 from app.schemas.usuario import AtualizarUsuarioInput, UsuarioPublico
+from app.services.auth import hash_senha, verificar_senha
+
+
+class TrocarSenhaInput(BaseModel):
+    senha_atual: str
+    nova_senha: str = Field(min_length=6)
+
+
+class CriarMembroFamiliaInput(BaseModel):
+    nome: str = Field(min_length=2, max_length=100)
+    email: str
+    senha: str = Field(min_length=6)
+    papel: PapelUsuario = PapelUsuario.responsavel
 
 router = APIRouter(prefix="/usuarios", tags=["Usuários"])
 
@@ -55,6 +69,56 @@ async def atualizar_perfil(
     await db.commit()
     await db.refresh(usuario)
     return usuario
+
+
+@router.patch("/me/senha", response_model=UsuarioPublico)
+async def trocar_senha(
+    dados: TrocarSenhaInput,
+    usuario: Usuario = Depends(get_usuario_atual),
+    db: AsyncSession = Depends(get_db),
+):
+    if not verificar_senha(dados.senha_atual, usuario.senha_hash):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Senha atual incorreta")
+    if dados.senha_atual == dados.nova_senha:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="A nova senha deve ser diferente da atual")
+
+    usuario.senha_hash = hash_senha(dados.nova_senha)
+    usuario.deve_trocar_senha = False
+    await db.commit()
+    await db.refresh(usuario)
+    return usuario
+
+
+@router.post("/familia/membros", response_model=UsuarioPublico, status_code=status.HTTP_201_CREATED)
+async def criar_membro_familia(
+    dados: CriarMembroFamiliaInput,
+    atual: Usuario = Depends(requer_super_responsavel()),
+    db: AsyncSession = Depends(get_db),
+):
+    if dados.papel in (PapelUsuario.admin, PapelUsuario.super_responsavel):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Só é possível criar responsável ou filho",
+        )
+
+    if not atual.familia_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Você não pertence a nenhuma família")
+
+    if (await db.execute(select(Usuario).where(Usuario.email == dados.email))).scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-mail já cadastrado")
+
+    novo = Usuario(
+        familia_id=atual.familia_id,
+        nome=dados.nome,
+        email=dados.email,
+        senha_hash=hash_senha(dados.senha),
+        papel=dados.papel,
+        deve_trocar_senha=True,
+    )
+    db.add(novo)
+    await db.commit()
+    await db.refresh(novo)
+    return novo
 
 
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)

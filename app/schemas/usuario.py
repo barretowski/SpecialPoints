@@ -27,6 +27,7 @@ class UsuarioPublico(BaseModel):
     pontos_acumulados: int
     familia_id: int | None
     ativo: bool
+    deve_trocar_senha: bool
     criado_em: datetime
 
 

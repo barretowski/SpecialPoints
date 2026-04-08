@@ -9,6 +9,7 @@ from app.database import Base
 
 class PapelUsuario(str, enum.Enum):
     admin = "admin"
+    super_responsavel = "super_responsavel"
     responsavel = "responsavel"
     filho = "filho"
 
@@ -26,6 +27,7 @@ class Usuario(Base):
     pontos_disponiveis: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     pontos_acumulados: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     ativo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    deve_trocar_senha: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

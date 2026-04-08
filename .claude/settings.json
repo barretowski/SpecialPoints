@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(py -m alembic upgrade head)",
+      "Bash(py -c \"from app.routers.usuarios import router; print\\('OK'\\)\")"
+    ]
+  }
+}

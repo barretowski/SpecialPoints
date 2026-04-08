@@ -12,6 +12,8 @@ export const authService = {
 export const usuariosService = {
   familia: () => api.get('/usuarios/familia'),
   atualizar: (dados) => api.patch('/usuarios/me', dados),
+  trocarSenha: (dados) => api.patch('/usuarios/me/senha', dados),
+  criarMembro: (dados) => api.post('/usuarios/familia/membros', dados),
 }
 
 // Tarefas
@@ -45,7 +47,7 @@ export const metasService = {
 
 // Resgates
 export const resgatesService = {
-  listar: () => api.get('/resgates/'),
+  listar: (params) => api.get('/resgates/', { params }),
   solicitar: (recompensa_id) => api.post('/resgates/', { recompensa_id }),
   avaliar: (id, status, observacao) => api.patch(`/resgates/${id}`, { status, observacao }),
 }
@@ -80,6 +82,7 @@ export const adminService = {
   atualizarGrupo: (id, dados) => api.patch(`/admin/familias/${id}`, dados),
   deletarGrupo: (id) => api.delete(`/admin/familias/${id}`),
   membrosGrupo: (id) => api.get(`/admin/familias/${id}/membros`),
+  criarMembro: (familiaId, dados) => api.post(`/admin/familias/${familiaId}/membros`, dados),
   listarUsuarios: (params) => api.get('/admin/usuarios', { params }),
   ativarUsuario: (id, ativo) => api.patch(`/admin/usuarios/${id}/ativar`, null, { params: { ativo } }),
 }

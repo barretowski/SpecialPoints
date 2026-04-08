@@ -8,7 +8,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   const autenticado = computed(() => !!token.value)
   const ehAdmin = computed(() => usuario.value?.papel === 'admin')
-  const ehResponsavel = computed(() => ['admin', 'responsavel'].includes(usuario.value?.papel))
+  const ehSuperResponsavel = computed(() => usuario.value?.papel === 'super_responsavel')
+  const ehResponsavel = computed(() => ['admin', 'super_responsavel', 'responsavel'].includes(usuario.value?.papel))
   const ehFilho = computed(() => usuario.value?.papel === 'filho')
 
   async function login(email, senha) {
@@ -31,5 +32,5 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.clear()
   }
 
-  return { usuario, token, autenticado, ehAdmin, ehResponsavel, ehFilho, login, logout, carregarPerfil }
+  return { usuario, token, autenticado, ehAdmin, ehSuperResponsavel, ehResponsavel, ehFilho, login, logout, carregarPerfil }
 })
