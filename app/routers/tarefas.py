@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
@@ -12,6 +12,7 @@ from app.models.tarefa import StatusTarefa, Tarefa
 from app.models.transacao_ponto import TipoTransacao
 from app.models.usuario import PapelUsuario, Usuario
 from app.schemas.tarefa import AtualizarTarefaInput, CriarTarefaInput, RejeitarTarefaInput, TarefaPublica
+from app.services.conquistas import verificar_e_conceder
 from app.services.pontos import creditar, notificar, verificar_metas
 
 router = APIRouter(prefix="/tarefas", tags=["Tarefas"])
@@ -195,6 +196,7 @@ async def aprovar_tarefa(
         tarefa_id=tarefa.id,
     )
     await verificar_metas(db, filho, tarefa.pontos)
+    await verificar_e_conceder(db, filho)
     await notificar(
         db,
         filho.id,
@@ -204,6 +206,34 @@ async def aprovar_tarefa(
         referencia_id=tarefa.id,
         referencia_tipo="tarefa",
     )
+
+    # Auto-recriar tarefa recorrente
+    _DELTAS = {"diaria": timedelta(days=1), "semanal": timedelta(weeks=1), "mensal": timedelta(days=30)}
+    if tarefa.recorrencia and tarefa.recorrencia in _DELTAS:
+        delta = _DELTAS[tarefa.recorrencia]
+        nova_data_limite = (tarefa.data_limite + delta) if tarefa.data_limite else None
+        nova = Tarefa(
+            familia_id=tarefa.familia_id,
+            criado_por_id=tarefa.criado_por_id,
+            atribuido_a_id=tarefa.atribuido_a_id,
+            titulo=tarefa.titulo,
+            descricao=tarefa.descricao,
+            pontos=tarefa.pontos,
+            categoria_id=tarefa.categoria_id,
+            recorrencia=tarefa.recorrencia,
+            ativa=tarefa.ativa,
+            data_limite=nova_data_limite,
+        )
+        db.add(nova)
+        if tarefa.atribuido_a_id:
+            await notificar(
+                db,
+                tarefa.atribuido_a_id,
+                TipoNotificacao.tarefa_atribuida,
+                "Nova tarefa recorrente",
+                f'A tarefa recorrente "{tarefa.titulo}" foi renovada ({tarefa.pontos} pts).',
+                referencia_tipo="tarefa",
+            )
 
     await db.commit()
     await db.refresh(tarefa)

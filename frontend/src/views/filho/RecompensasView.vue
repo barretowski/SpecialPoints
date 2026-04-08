@@ -16,8 +16,11 @@
         🎁 Loja
       </button>
       <button class="tab" :class="{ 'tab-ativa': aba === 'resgates' }" @click="mudarAbaResgates">
-        📦 Meus resgates
+        📦 Resgates
         <span v-if="pendentesCount" class="tab-badge">{{ pendentesCount }}</span>
+      </button>
+      <button class="tab" :class="{ 'tab-ativa': aba === 'historico' }" @click="mudarAbaHistorico">
+        📊 Histórico
       </button>
     </div>
 
@@ -108,6 +111,34 @@
       </div>
     </template>
 
+    <!-- Aba: Histórico de pontos -->
+    <template v-if="aba === 'historico'">
+      <div v-if="carregandoHistorico" class="carregando">Carregando…</div>
+
+      <div v-else-if="!historico.length" class="vazio-hero">
+        <p class="vazio-emoji">📊</p>
+        <p class="vazio-titulo">Nenhuma movimentação ainda.</p>
+      </div>
+
+      <div v-else class="lista-historico">
+        <div
+          v-for="t in historico"
+          :key="t.id"
+          class="historico-card"
+          :class="t.tipo === 'debito' ? 'debito' : 'credito'"
+        >
+          <div class="hist-icone">{{ t.tipo === 'debito' ? '💸' : (t.tipo === 'bonus' ? '🎁' : '⭐') }}</div>
+          <div class="hist-info">
+            <p class="hist-desc">{{ t.descricao }}</p>
+            <p class="hist-data">{{ formatarData(t.criado_em) }}</p>
+          </div>
+          <div class="hist-valor" :class="t.tipo === 'debito' ? 'valor-negativo' : 'valor-positivo'">
+            {{ t.tipo === 'debito' ? '-' : '+' }}{{ t.quantidade }}
+          </div>
+        </div>
+      </div>
+    </template>
+
     <!-- Toast -->
     <Transition name="toast">
       <div v-if="toast.visivel" class="toast" :class="`toast-${toast.tipo}`" role="status" aria-live="polite">
@@ -120,14 +151,16 @@
 
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
-import { recompensasService, resgatesService } from '@/services'
+import { recompensasService, resgatesService, transacoesService } from '@/services'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
 const recompensas = ref([])
 const resgates = ref([])
+const historico = ref([])
 const carregando = ref(true)
 const carregandoResgates = ref(false)
+const carregandoHistorico = ref(false)
 const aba = ref('loja')
 const toast = reactive({ visivel: false, msg: '', tipo: 'sucesso' })
 
@@ -177,6 +210,18 @@ async function carregarResgates() {
 async function mudarAbaResgates() {
   aba.value = 'resgates'
   if (!resgates.value.length) await carregarResgates()
+}
+
+async function carregarHistorico() {
+  carregandoHistorico.value = true
+  const resp = await transacoesService.listar({ tamanho: 100 })
+  historico.value = resp.data
+  carregandoHistorico.value = false
+}
+
+async function mudarAbaHistorico() {
+  aba.value = 'historico'
+  if (!historico.value.length) await carregarHistorico()
 }
 
 onMounted(async () => {
@@ -347,6 +392,32 @@ onMounted(async () => {
 .chip-aprovado  { background: var(--cor-primaria-clara); color: var(--cor-primaria); }
 .chip-entregue  { background: var(--cor-sucesso-bg); color: #065f46; }
 .chip-recusado  { background: var(--cor-erro-bg);    color: #991b1b; }
+
+/* Histórico */
+.lista-historico { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.historico-card {
+  background: #fff;
+  border-radius: var(--raio);
+  padding: 0.8rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: var(--sombra-xs);
+  border: 1.5px solid var(--cor-borda);
+  border-left: 4px solid var(--cor-borda);
+}
+.historico-card.credito { border-left-color: var(--cor-sucesso); }
+.historico-card.debito  { border-left-color: var(--cor-erro); }
+
+.hist-icone { font-size: 1.3rem; flex-shrink: 0; }
+.hist-info { flex: 1; min-width: 0; }
+.hist-desc { font-weight: 600; font-size: 0.85rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hist-data { font-size: 0.72rem; color: var(--cor-texto-suave); margin-top: 0.1rem; }
+
+.hist-valor { font-size: 1rem; font-weight: 800; flex-shrink: 0; }
+.valor-positivo { color: var(--cor-sucesso); }
+.valor-negativo { color: var(--cor-erro); }
 
 /* Vazio */
 .vazio-hero { text-align: center; padding: 2.5rem; }

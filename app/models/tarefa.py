@@ -28,6 +28,7 @@ class Tarefa(Base):
     pontos: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[StatusTarefa] = mapped_column(Enum(StatusTarefa), default=StatusTarefa.pendente, nullable=False, index=True)
     ativa: Mapped[bool] = mapped_column(default=True, nullable=False)
+    recorrencia: Mapped[str | None] = mapped_column(String(20), nullable=True)  # diaria | semanal | mensal
     data_limite: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     concluida_em: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

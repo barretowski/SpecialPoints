@@ -47,6 +47,7 @@ const routes = [
       { path: 'dashboard', name: 'filho-dashboard', component: () => import('@/views/filho/DashboardView.vue') },
       { path: 'tarefas', name: 'filho-tarefas', component: () => import('@/views/filho/TarefasView.vue') },
       { path: 'recompensas', name: 'filho-recompensas', component: () => import('@/views/filho/RecompensasView.vue') },
+      { path: 'conquistas', name: 'filho-conquistas', component: () => import('@/views/filho/ConquistasView.vue') },
     ],
   },
 

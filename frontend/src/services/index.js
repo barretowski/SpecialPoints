@@ -73,6 +73,11 @@ export const categoriasService = {
   deletar: (id) => api.delete(`/categorias/${id}`),
 }
 
+// Conquistas
+export const conquistasService = {
+  listar: () => api.get('/conquistas/'),
+}
+
 // Admin
 export const adminService = {
   stats: () => api.get('/admin/stats'),

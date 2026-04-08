@@ -39,6 +39,12 @@
         </span>
         <span class="nav-label">Prêmios</span>
       </RouterLink>
+      <RouterLink to="/filho/conquistas" class="nav-btn" aria-label="Conquistas">
+        <span class="nav-icone">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+        </span>
+        <span class="nav-label">Conquistas</span>
+      </RouterLink>
     </nav>
   </div>
 </template>
