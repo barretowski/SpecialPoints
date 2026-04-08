@@ -107,6 +107,7 @@ async function trocar() {
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  background: var(--grad-filho);
 }
 
 .troca-card {
@@ -115,6 +116,8 @@ async function trocar() {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  border-radius: var(--raio-grande);
+  box-shadow: var(--sombra-lg);
 }
 
 .logo-wrap { display: flex; justify-content: center; }

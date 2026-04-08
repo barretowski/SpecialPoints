@@ -1,13 +1,13 @@
 <template>
   <main class="login-page">
-    <div class="card login-card">
+    <div class="login-card">
       <div class="logo-wrap">
-        <img src="@/assets/logo.png" alt="Personagem SpecialPoints" class="logo-img" />
+        <img src="@/assets/logo.png" alt="SpecialPoints" class="logo-img" />
       </div>
       <h1 class="titulo">SpecialPoints</h1>
       <p class="subtitulo">Entre na sua conta</p>
 
-      <form @submit.prevent="entrar" novalidate>
+      <form @submit.prevent="entrar" novalidate class="form">
         <div class="campo">
           <label for="email">E-mail</label>
           <input
@@ -40,9 +40,13 @@
       </form>
 
       <p class="rodape-form">
-        Não tem conta?
-        <RouterLink to="/registro">Cadastre-se</RouterLink>
+        Não tem conta? <RouterLink to="/registro">Cadastre-se</RouterLink>
       </p>
+    </div>
+
+    <div class="bg-deco" aria-hidden="true">
+      <div class="deco-circle deco-1"></div>
+      <div class="deco-circle deco-2"></div>
     </div>
   </main>
 </template>
@@ -64,7 +68,7 @@ async function entrar() {
   carregando.value = true
   try {
     await auth.login(form.email, form.senha)
-    router.push(auth.ehResponsavel ? '/responsavel/dashboard' : '/filho/dashboard')
+    router.push(auth.ehAdmin ? '/admin/dashboard' : auth.ehResponsavel ? '/responsavel/dashboard' : '/filho/dashboard')
   } catch (e) {
     erro.value = e.response?.data?.detail || 'Erro ao entrar. Verifique seus dados.'
   } finally {
@@ -79,31 +83,43 @@ async function entrar() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1rem;
+  padding: 1.5rem;
+  background: var(--grad-filho);
+  position: relative;
+  overflow: hidden;
 }
 
 .login-card {
+  background: #fff;
+  border-radius: var(--raio-grande);
+  padding: 2.5rem 2rem;
   width: 100%;
   max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.75rem;
+  box-shadow: var(--sombra-lg);
+  position: relative;
+  z-index: 1;
 }
 
-.logo-wrap {
-  display: flex;
-  justify-content: center;
-}
-
+.logo-wrap { display: flex; justify-content: center; margin-bottom: 0.25rem; }
 .logo-img {
-  width: 110px;
-  height: 110px;
+  width: 90px;
+  height: 90px;
   object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(108, 99, 255, 0.25));
+  filter: drop-shadow(0 6px 16px rgba(124,58,237,0.3));
+  animation: flutua 3s ease-in-out infinite;
+}
+
+@keyframes flutua {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-6px); }
 }
 
 .titulo {
   font-size: 1.75rem;
+  font-weight: 800;
   text-align: center;
   color: var(--cor-primaria);
   margin-top: -0.25rem;
@@ -112,25 +128,34 @@ async function entrar() {
 .subtitulo {
   text-align: center;
   color: var(--cor-texto-suave);
-  margin-top: -0.75rem;
+  font-size: 0.9rem;
+  margin-top: -0.25rem;
+  margin-bottom: 0.5rem;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
+.form { display: flex; flex-direction: column; gap: 1rem; margin-top: 0.25rem; }
 
 .btn-bloco {
   width: 100%;
-  justify-content: center;
-  padding: 0.75rem;
+  padding: 0.8rem;
   font-size: 1rem;
+  margin-top: 0.25rem;
 }
 
 .rodape-form {
   text-align: center;
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   color: var(--cor-texto-suave);
+  margin-top: 0.25rem;
 }
+
+/* Decoração de fundo */
+.bg-deco { position: absolute; inset: 0; pointer-events: none; }
+.deco-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+}
+.deco-1 { width: 400px; height: 400px; top: -150px; right: -100px; }
+.deco-2 { width: 300px; height: 300px; bottom: -100px; left: -80px; }
 </style>
