@@ -7,6 +7,7 @@ from app.models.recompensa import Recompensa
 from app.models.meta import Meta
 from app.models.resgate import Resgate
 from app.models.notificacao import Notificacao
+from app.models.conquista import Conquista
 
 __all__ = [
     "Familia",
@@ -18,4 +19,5 @@ __all__ = [
     "Meta",
     "Resgate",
     "Notificacao",
+    "Conquista",
 ]

@@ -9,9 +9,7 @@ import app.models  # noqa: F401 — registra todos os modelos no metadata
 
 config = context.config
 
-# Converte URL async (asyncpg) → sync (psycopg2) para uso no Alembic
-sync_url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg://")
-config.set_main_option("sqlalchemy.url", sync_url)
+config.set_main_option("sqlalchemy.url", settings.sync_database_url)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
@@ -32,7 +30,7 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = create_engine(sync_url, poolclass=pool.NullPool)
+    connectable = create_engine(settings.sync_database_url, poolclass=pool.NullPool)
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():

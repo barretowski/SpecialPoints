@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.config import settings
 from app.routers import admin, auth, categorias, conquistas, metas, notificacoes, recompensas, resgates, tarefas, transacoes, usuarios
 
 app = FastAPI(
@@ -9,9 +10,13 @@ app = FastAPI(
     version="2.0.0",
 )
 
+origins = ["http://localhost:5173", "http://localhost:4173"]
+if settings.FRONTEND_URL not in origins:
+    origins.append(settings.FRONTEND_URL)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
