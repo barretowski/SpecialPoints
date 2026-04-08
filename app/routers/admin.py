@@ -1,4 +1,8 @@
+import secrets
+import string
+
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -13,6 +17,18 @@ from app.models.transacao_ponto import TransacaoPonto
 from app.models.usuario import PapelUsuario, Usuario
 from app.schemas.paginacao import Paginacao
 from app.schemas.usuario import AtualizarUsuarioInput, UsuarioPublico
+
+
+class FamiliaInput(BaseModel):
+    nome: str
+
+class FamiliaAtualizarInput(BaseModel):
+    nome: str | None = None
+
+
+def _gerar_codigo(tamanho: int = 8) -> str:
+    alfabeto = string.ascii_uppercase + string.digits
+    return "".join(secrets.choice(alfabeto) for _ in range(tamanho))
 
 router = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -55,15 +71,111 @@ async def listar_familias(
         select(Familia).order_by(Familia.criado_em.desc()).offset(paginacao.skip).limit(paginacao.limit)
     )
     familias = resultado.scalars().all()
-    return [
-        {
+
+    lista = []
+    for f in familias:
+        total_membros = (
+            await db.execute(select(func.count()).select_from(Usuario).where(Usuario.familia_id == f.id))
+        ).scalar()
+        lista.append({
             "id": f.id,
             "nome": f.nome,
             "codigo_convite": f.codigo_convite,
             "criado_em": f.criado_em,
-        }
-        for f in familias
-    ]
+            "total_membros": total_membros,
+        })
+    return lista
+
+
+@router.post("/familias", status_code=status.HTTP_201_CREATED)
+async def criar_familia(
+    dados: FamiliaInput,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    codigo = _gerar_codigo()
+    # garante unicidade
+    while (await db.execute(select(Familia).where(Familia.codigo_convite == codigo))).scalar_one_or_none():
+        codigo = _gerar_codigo()
+
+    familia = Familia(nome=dados.nome, codigo_convite=codigo)
+    db.add(familia)
+    await db.commit()
+    await db.refresh(familia)
+    return {"id": familia.id, "nome": familia.nome, "codigo_convite": familia.codigo_convite, "criado_em": familia.criado_em}
+
+
+@router.get("/familias/{familia_id}")
+async def obter_familia(
+    familia_id: int,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    resultado = await db.execute(select(Familia).where(Familia.id == familia_id))
+    familia = resultado.scalar_one_or_none()
+    if not familia:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Família não encontrada")
+
+    total_membros = (
+        await db.execute(select(func.count()).select_from(Usuario).where(Usuario.familia_id == familia_id))
+    ).scalar()
+    total_tarefas = (
+        await db.execute(select(func.count()).select_from(Tarefa).where(Tarefa.familia_id == familia_id))
+    ).scalar()
+    total_pontos = (
+        await db.execute(
+            select(func.coalesce(func.sum(TransacaoPonto.quantidade), 0))
+            .where(TransacaoPonto.usuario_id.in_(
+                select(Usuario.id).where(Usuario.familia_id == familia_id)
+            ))
+        )
+    ).scalar()
+
+    return {
+        "id": familia.id,
+        "nome": familia.nome,
+        "codigo_convite": familia.codigo_convite,
+        "criado_em": familia.criado_em,
+        "total_membros": total_membros,
+        "total_tarefas": total_tarefas,
+        "total_pontos_distribuidos": total_pontos,
+    }
+
+
+@router.patch("/familias/{familia_id}")
+async def atualizar_familia(
+    familia_id: int,
+    dados: FamiliaAtualizarInput,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    resultado = await db.execute(select(Familia).where(Familia.id == familia_id))
+    familia = resultado.scalar_one_or_none()
+    if not familia:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Família não encontrada")
+    if dados.nome:
+        familia.nome = dados.nome
+    await db.commit()
+    await db.refresh(familia)
+    return {"id": familia.id, "nome": familia.nome, "codigo_convite": familia.codigo_convite}
+
+
+@router.get("/familias/{familia_id}/membros", response_model=list[UsuarioPublico])
+async def listar_membros_familia(
+    familia_id: int,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    resultado = await db.execute(
+        select(Familia).where(Familia.id == familia_id)
+    )
+    if not resultado.scalar_one_or_none():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Família não encontrada")
+
+    membros = (
+        await db.execute(select(Usuario).where(Usuario.familia_id == familia_id).order_by(Usuario.papel))
+    ).scalars().all()
+    return membros
 
 
 @router.delete("/familias/{familia_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -1,25 +1,25 @@
 <template>
-  <div class="layout">
-    <aside class="sidebar">
+  <div class="layout-admin">
+    <aside class="sidebar-admin">
       <div class="sidebar-logo">
         <img src="@/assets/logo.png" alt="SpecialPoints" class="sidebar-logo-img" />
         <span>SpecialPoints</span>
       </div>
-      <nav aria-label="Menu principal">
-        <RouterLink to="/responsavel/dashboard" class="nav-item">🏠 Dashboard</RouterLink>
-        <RouterLink to="/responsavel/tarefas" class="nav-item">✅ Tarefas</RouterLink>
-        <RouterLink to="/responsavel/recompensas" class="nav-item">🎁 Recompensas</RouterLink>
-        <RouterLink to="/responsavel/membros" class="nav-item">👨‍👩‍👧 Membros</RouterLink>
+      <p class="sidebar-tag">Painel Admin</p>
+
+      <nav aria-label="Menu admin">
+        <RouterLink to="/admin/dashboard" class="nav-item">📊 Dashboard</RouterLink>
+        <RouterLink to="/admin/grupos" class="nav-item">👨‍👩‍👧 Grupos</RouterLink>
       </nav>
+
       <button class="btn-sair" @click="sair">Sair</button>
     </aside>
 
-    <div class="conteudo">
-      <header class="topbar">
-        <span class="topbar-usuario">Olá, {{ auth.usuario?.nome }}</span>
-        <NotificacaoBadge />
+    <div class="conteudo-admin">
+      <header class="topbar-admin">
+        <span class="topbar-usuario">Olá, {{ auth.usuario?.nome }} <span class="badge-admin">Admin</span></span>
       </header>
-      <main class="pagina">
+      <main class="pagina-admin">
         <RouterView />
       </main>
     </div>
@@ -29,15 +29,9 @@
 <script setup>
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { useNotificacoesStore } from '@/stores/notificacoes'
-import NotificacaoBadge from '@/components/NotificacaoBadge.vue'
-import { onMounted } from 'vue'
 
 const auth = useAuthStore()
-const notificacoes = useNotificacoesStore()
 const router = useRouter()
-
-onMounted(() => notificacoes.carregar())
 
 function sair() {
   auth.logout()
@@ -46,14 +40,14 @@ function sair() {
 </script>
 
 <style scoped>
-.layout {
+.layout-admin {
   display: flex;
   min-height: 100vh;
 }
 
-.sidebar {
-  width: 220px;
-  background: var(--cor-primaria);
+.sidebar-admin {
+  width: 230px;
+  background: #1a1a2e;
   color: #fff;
   display: flex;
   flex-direction: column;
@@ -69,62 +63,87 @@ function sair() {
   gap: 0.6rem;
   font-size: 1rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .sidebar-logo-img {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  filter: drop-shadow(0 2px 6px rgba(108,99,255,0.4));
   flex-shrink: 0;
+}
+
+.sidebar-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 1rem;
+  padding-left: 2px;
 }
 
 .nav-item {
   display: block;
   padding: 0.65rem 0.85rem;
   border-radius: var(--raio);
-  color: rgba(255,255,255,0.85);
+  color: rgba(255,255,255,0.75);
   font-size: 0.95rem;
   transition: background 0.15s;
 }
 
 .nav-item:hover,
 .nav-item.router-link-active {
-  background: rgba(255,255,255,0.18);
+  background: rgba(108,99,255,0.35);
   color: #fff;
 }
 
 .btn-sair {
   margin-top: auto;
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.1);
   border: none;
-  color: #fff;
+  color: rgba(255,255,255,0.7);
   padding: 0.6rem;
   border-radius: var(--raio);
   font-size: 0.9rem;
+  cursor: pointer;
 }
-.btn-sair:hover { background: rgba(255,255,255,0.25); }
+.btn-sair:hover { background: rgba(255,255,255,0.2); color: #fff; }
 
-.conteudo {
-  margin-left: 220px;
+.conteudo-admin {
+  margin-left: 230px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  background: var(--cor-fundo);
 }
 
-.topbar {
+.topbar-admin {
   background: var(--cor-superficie);
   border-bottom: 1px solid var(--cor-borda);
   padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
-.topbar-usuario { font-weight: 500; }
+.topbar-usuario {
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
-.pagina {
+.badge-admin {
+  background: #1a1a2e;
+  color: #fff;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+.pagina-admin {
   padding: 1.5rem;
   flex: 1;
 }

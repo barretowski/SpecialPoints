@@ -1,7 +1,10 @@
 <template>
   <div class="layout-filho">
     <header class="header-filho" role="banner">
-      <span class="logo">⭐ SpecialPoints</span>
+      <div class="logo">
+        <img src="@/assets/logo.png" alt="SpecialPoints" class="header-logo-img" />
+        <span>SpecialPoints</span>
+      </div>
       <span class="saudacao">Olá, {{ auth.usuario?.nome }}!</span>
       <div class="pontos-badge" aria-label="Seus pontos disponíveis">
         ⭐ {{ auth.usuario?.pontos_disponiveis || 0 }} pts
@@ -60,7 +63,20 @@ function sair() {
   gap: 1rem;
 }
 
-.logo { font-size: 1.2rem; font-weight: 700; }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.header-logo-img {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
 .saudacao { flex: 1; font-size: 1rem; }
 
 .pontos-badge {

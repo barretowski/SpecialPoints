@@ -1,7 +1,10 @@
 <template>
   <main class="login-page">
     <div class="card login-card">
-      <h1 class="titulo">⭐ SpecialPoints</h1>
+      <div class="logo-wrap">
+        <img src="@/assets/logo.png" alt="Personagem SpecialPoints" class="logo-img" />
+      </div>
+      <h1 class="titulo">SpecialPoints</h1>
       <p class="subtitulo">Crie sua conta</p>
 
       <form @submit.prevent="cadastrar" novalidate>
@@ -106,7 +109,9 @@ async function cadastrar() {
   flex-direction: column;
   gap: 1.25rem;
 }
-.titulo { font-size: 1.75rem; text-align: center; color: var(--cor-primaria); }
+.logo-wrap { display: flex; justify-content: center; }
+.logo-img { width: 90px; height: 90px; object-fit: contain; filter: drop-shadow(0 4px 12px rgba(108, 99, 255, 0.25)); }
+.titulo { font-size: 1.75rem; text-align: center; color: var(--cor-primaria); margin-top: -0.25rem; }
 .subtitulo { text-align: center; color: var(--cor-texto-suave); margin-top: -0.75rem; }
 form { display: flex; flex-direction: column; gap: 1rem; }
 .btn-bloco { width: 100%; justify-content: center; padding: 0.75rem; font-size: 1rem; }

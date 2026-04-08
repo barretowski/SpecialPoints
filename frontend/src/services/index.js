@@ -70,3 +70,16 @@ export const categoriasService = {
   atualizar: (id, dados) => api.patch(`/categorias/${id}`, dados),
   deletar: (id) => api.delete(`/categorias/${id}`),
 }
+
+// Admin
+export const adminService = {
+  stats: () => api.get('/admin/stats'),
+  listarGrupos: (params) => api.get('/admin/familias', { params }),
+  criarGrupo: (dados) => api.post('/admin/familias', dados),
+  obterGrupo: (id) => api.get(`/admin/familias/${id}`),
+  atualizarGrupo: (id, dados) => api.patch(`/admin/familias/${id}`, dados),
+  deletarGrupo: (id) => api.delete(`/admin/familias/${id}`),
+  membrosGrupo: (id) => api.get(`/admin/familias/${id}/membros`),
+  listarUsuarios: (params) => api.get('/admin/usuarios', { params }),
+  ativarUsuario: (id, ativo) => api.patch(`/admin/usuarios/${id}/ativar`, null, { params: { ativo } }),
+}

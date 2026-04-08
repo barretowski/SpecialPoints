@@ -42,6 +42,19 @@ const routes = [
     ],
   },
 
+  // Admin
+  {
+    path: '/admin',
+    component: () => import('@/views/admin/LayoutAdmin.vue'),
+    meta: { papel: 'admin' },
+    children: [
+      { path: '', redirect: '/admin/dashboard' },
+      { path: 'dashboard', name: 'admin-dashboard', component: () => import('@/views/admin/DashboardAdmin.vue') },
+      { path: 'grupos', name: 'admin-grupos', component: () => import('@/views/admin/GruposView.vue') },
+      { path: 'grupos/:id', name: 'admin-grupo-detalhe', component: () => import('@/views/admin/GrupoDetalheView.vue') },
+    ],
+  },
+
   { path: '/', redirect: () => '/login' },
   { path: '/:pathMatch(.*)*', redirect: '/login' },
 ]
@@ -59,11 +72,15 @@ router.beforeEach((to) => {
 
   // Autenticado tentando acessar login/registro → redireciona para home
   if (to.meta.publica && auth.autenticado) {
+    if (auth.ehAdmin) return '/admin/dashboard'
     return auth.ehResponsavel ? '/responsavel/dashboard' : '/filho/dashboard'
   }
 
-  // Admin pode acessar qualquer rota protegida
-  if (auth.ehAdmin) return
+  // Admin só acessa rotas admin (ou qualquer rota sem papel definido)
+  if (auth.ehAdmin) {
+    if (to.meta.papel && to.meta.papel !== 'admin') return '/admin/dashboard'
+    return
+  }
 
   // Verifica papel necessário para a rota
   if (to.meta.papel && auth.usuario?.papel !== to.meta.papel) {

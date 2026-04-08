@@ -1,6 +1,7 @@
 <template>
   <div>
     <section class="pontos-section card" aria-label="Seus pontos">
+      <img src="@/assets/logo.png" alt="Personagem SpecialPoints" class="personagem" />
       <h2 class="pontos-titulo">Seus pontos</h2>
       <p class="pontos-valor" aria-live="polite">⭐ {{ auth.usuario?.pontos_disponiveis || 0 }}</p>
       <p class="pontos-sub">{{ auth.usuario?.pontos_acumulados || 0 }} pontos acumulados no total</p>
@@ -83,7 +84,19 @@ onMounted(async () => {
 .pontos-section {
   text-align: center;
   margin-bottom: 1.5rem;
-  padding: 2rem;
+  padding: 2rem 2rem 1.5rem;
+}
+.personagem {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 6px 16px rgba(108, 99, 255, 0.3));
+  animation: flutua 3s ease-in-out infinite;
+}
+@keyframes flutua {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
 }
 .pontos-titulo { font-size: 1.1rem; color: var(--cor-texto-suave); margin-bottom: 0.5rem; }
 .pontos-valor { font-size: 3rem; font-weight: 700; color: var(--cor-primaria); }

@@ -1,7 +1,10 @@
 <template>
   <main class="login-page">
     <div class="card login-card">
-      <h1 class="titulo">⭐ SpecialPoints</h1>
+      <div class="logo-wrap">
+        <img src="@/assets/logo.png" alt="Personagem SpecialPoints" class="logo-img" />
+      </div>
+      <h1 class="titulo">SpecialPoints</h1>
       <p class="subtitulo">Entre na sua conta</p>
 
       <form @submit.prevent="entrar" novalidate>
@@ -87,10 +90,23 @@ async function entrar() {
   gap: 1.25rem;
 }
 
+.logo-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.logo-img {
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(108, 99, 255, 0.25));
+}
+
 .titulo {
   font-size: 1.75rem;
   text-align: center;
   color: var(--cor-primaria);
+  margin-top: -0.25rem;
 }
 
 .subtitulo {
