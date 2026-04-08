@@ -46,8 +46,13 @@ def requer_papel(*papeis: PapelUsuario):
     return verificar
 
 
+def requer_admin():
+    return requer_papel(PapelUsuario.admin)
+
+
 def requer_responsavel():
-    return requer_papel(PapelUsuario.responsavel)
+    # admin também pode agir como responsável em qualquer família
+    return requer_papel(PapelUsuario.admin, PapelUsuario.responsavel)
 
 
 def requer_filho():

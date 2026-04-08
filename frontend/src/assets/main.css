@@ -1,0 +1,148 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cor-primaria: #6c63ff;
+  --cor-primaria-escura: #574fd6;
+  --cor-secundaria: #ff6584;
+  --cor-sucesso: #4caf50;
+  --cor-aviso: #ff9800;
+  --cor-erro: #f44336;
+  --cor-fundo: #f5f5f5;
+  --cor-superficie: #ffffff;
+  --cor-texto: #212121;
+  --cor-texto-suave: #757575;
+  --cor-borda: #e0e0e0;
+  --sombra: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --raio: 8px;
+  --raio-grande: 16px;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background-color: var(--cor-fundo);
+  color: var(--cor-texto);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--cor-primaria);
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  font-family: inherit;
+}
+
+input, textarea, select {
+  font-family: inherit;
+}
+
+/* Utilitários */
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.card {
+  background: var(--cor-superficie);
+  border-radius: var(--raio);
+  box-shadow: var(--sombra);
+  padding: 1.5rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.25rem;
+  border: none;
+  border-radius: var(--raio);
+  font-size: 0.95rem;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-primario {
+  background: var(--cor-primaria);
+  color: #fff;
+}
+.btn-primario:hover { background: var(--cor-primaria-escura); }
+
+.btn-perigo {
+  background: var(--cor-erro);
+  color: #fff;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--cor-primaria);
+  color: var(--cor-primaria);
+}
+
+.badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.badge-sucesso { background: #e8f5e9; color: #2e7d32; }
+.badge-aviso   { background: #fff3e0; color: #e65100; }
+.badge-erro    { background: #ffebee; color: #c62828; }
+.badge-info    { background: #e3f2fd; color: #1565c0; }
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--cor-texto-suave);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  padding: 0.6rem 0.85rem;
+  border: 1.5px solid var(--cor-borda);
+  border-radius: var(--raio);
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  outline: none;
+  border-color: var(--cor-primaria);
+}
+
+.erro-texto {
+  color: var(--cor-erro);
+  font-size: 0.85rem;
+}
+
+.carregando {
+  text-align: center;
+  padding: 2rem;
+  color: var(--cor-texto-suave);
+}
+
+/* Acessibilidade */
+:focus-visible {
+  outline: 3px solid var(--cor-primaria);
+  outline-offset: 2px;
+}

@@ -6,6 +6,7 @@ from app.database import get_db
 from app.dependencies import get_usuario_atual, requer_responsavel
 from app.models.transacao_ponto import TipoTransacao, TransacaoPonto
 from app.models.usuario import PapelUsuario, Usuario
+from app.schemas.paginacao import Paginacao
 from app.schemas.transacao import BonusManualInput, TransacaoPublica
 from app.services.pontos import creditar
 
@@ -16,6 +17,7 @@ router = APIRouter(prefix="/transacoes", tags=["Transações de Pontos"])
 async def listar_transacoes(
     usuario_id: int | None = None,
     usuario: Usuario = Depends(get_usuario_atual),
+    paginacao: Paginacao = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
     if usuario.papel == PapelUsuario.filho:
@@ -27,6 +29,8 @@ async def listar_transacoes(
         select(TransacaoPonto)
         .where(TransacaoPonto.usuario_id == alvo_id)
         .order_by(TransacaoPonto.criado_em.desc())
+        .offset(paginacao.skip)
+        .limit(paginacao.limit)
     )
     return resultado.scalars().all()
 

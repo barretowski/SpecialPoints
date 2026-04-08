@@ -4,10 +4,11 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
 from app.database import get_db
 from app.dependencies import get_usuario_atual
 from app.models.familia import Familia
-from app.models.usuario import Usuario
+from app.models.usuario import PapelUsuario, Usuario
 from app.schemas.auth import LoginInput, TokenOutput
 from app.schemas.usuario import RegistroInput, UsuarioPublico
 from app.services.auth import (
@@ -27,9 +28,15 @@ async def registrar(dados: RegistroInput, db: AsyncSession = Depends(get_db)):
     if resultado.scalar_one_or_none():
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-mail já cadastrado")
 
+    if dados.papel == PapelUsuario.admin:
+        if not dados.admin_secret or dados.admin_secret != settings.ADMIN_SECRET:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Segredo admin inválido")
+
     familia: Familia | None = None
 
-    if dados.familia_codigo:
+    if dados.papel == PapelUsuario.admin:
+        pass  # admin não pertence a nenhuma família
+    elif dados.familia_codigo:
         resultado = await db.execute(select(Familia).where(Familia.codigo_convite == dados.familia_codigo))
         familia = resultado.scalar_one_or_none()
         if not familia:

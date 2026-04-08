@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routers import auth, metas, notificacoes, recompensas, resgates, tarefas, transacoes, usuarios
+from app.routers import admin, auth, categorias, metas, notificacoes, recompensas, resgates, tarefas, transacoes, usuarios
 
 app = FastAPI(
     title="SpecialPoints API",
@@ -18,7 +18,9 @@ app.add_middleware(
 )
 
 app.include_router(auth.router)
+app.include_router(admin.router)
 app.include_router(usuarios.router)
+app.include_router(categorias.router)
 app.include_router(tarefas.router)
 app.include_router(recompensas.router)
 app.include_router(metas.router)

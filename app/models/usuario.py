@@ -8,6 +8,7 @@ from app.database import Base
 
 
 class PapelUsuario(str, enum.Enum):
+    admin = "admin"
     responsavel = "responsavel"
     filho = "filho"
 

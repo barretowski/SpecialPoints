@@ -7,6 +7,7 @@ from app.dependencies import get_usuario_atual
 from app.models.notificacao import Notificacao
 from app.models.usuario import Usuario
 from app.schemas.notificacao import NotificacaoPublica
+from app.schemas.paginacao import Paginacao
 
 router = APIRouter(prefix="/notificacoes", tags=["Notificações"])
 
@@ -15,6 +16,7 @@ router = APIRouter(prefix="/notificacoes", tags=["Notificações"])
 async def listar_notificacoes(
     apenas_nao_lidas: bool = False,
     usuario: Usuario = Depends(get_usuario_atual),
+    paginacao: Paginacao = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Notificacao).where(Notificacao.usuario_id == usuario.id)
@@ -22,7 +24,7 @@ async def listar_notificacoes(
     if apenas_nao_lidas:
         query = query.where(Notificacao.lida == False)
 
-    resultado = await db.execute(query.order_by(Notificacao.criado_em.desc()))
+    resultado = await db.execute(query.order_by(Notificacao.criado_em.desc()).offset(paginacao.skip).limit(paginacao.limit))
     return resultado.scalars().all()
 
 

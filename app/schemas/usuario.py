@@ -12,6 +12,7 @@ class RegistroInput(BaseModel):
     papel: PapelUsuario
     familia_codigo: str | None = Field(default=None, description="Código de convite da família (para entrar numa existente)")
     familia_nome: str | None = Field(default=None, description="Nome da nova família (para responsável sem família)")
+    admin_secret: str | None = Field(default=None, description="Segredo necessário para registrar como admin")
 
 
 class UsuarioPublico(BaseModel):

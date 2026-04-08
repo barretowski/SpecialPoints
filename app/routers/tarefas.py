@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_usuario_atual, requer_responsavel
 from app.models.notificacao import TipoNotificacao
+from app.schemas.paginacao import Paginacao
 from app.models.tarefa import StatusTarefa, Tarefa
 from app.models.transacao_ponto import TipoTransacao
 from app.models.usuario import PapelUsuario, Usuario
@@ -58,6 +59,7 @@ async def criar_tarefa(
 async def listar_tarefas(
     status_filtro: StatusTarefa | None = None,
     usuario: Usuario = Depends(get_usuario_atual),
+    paginacao: Paginacao = Depends(),
     db: AsyncSession = Depends(get_db),
 ):
     query = select(Tarefa).where(Tarefa.familia_id == usuario.familia_id)
@@ -68,7 +70,7 @@ async def listar_tarefas(
     if status_filtro:
         query = query.where(Tarefa.status == status_filtro)
 
-    resultado = await db.execute(query.order_by(Tarefa.criado_em.desc()))
+    resultado = await db.execute(query.order_by(Tarefa.criado_em.desc()).offset(paginacao.skip).limit(paginacao.limit))
     return resultado.scalars().all()
 
 
