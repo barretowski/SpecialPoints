@@ -63,7 +63,7 @@
                 <th>Nome</th>
                 <th>E-mail</th>
                 <th>Papel</th>
-                <th>Pontos</th>
+                <th>Pontos (filhos)</th>
                 <th>Status</th>
                 <th>Ações</th>
               </tr>
@@ -74,7 +74,10 @@
                 <td class="td-nome">{{ m.nome }}</td>
                 <td class="td-email">{{ m.email }}</td>
                 <td><span class="badge-papel" :class="m.papel">{{ m.papel }}</span></td>
-                <td class="td-centro">⭐ {{ m.pontos_disponiveis ?? '—' }}</td>
+                <td class="td-centro">
+                  <span v-if="m.papel === 'filho'">⭐ {{ m.pontos_disponiveis }}</span>
+                  <span v-else class="td-na">—</span>
+                </td>
                 <td>
                   <span class="badge-status" :class="{ ativo: m.ativo, inativo: !m.ativo }">
                     {{ m.ativo ? 'Ativo' : 'Inativo' }}
@@ -349,6 +352,7 @@ onMounted(async () => {
 .tabela tbody tr:hover { background: #fafafa; }
 
 .td-id { color: var(--cor-texto-suave); font-size: 0.8rem; }
+.td-na { color: var(--cor-texto-suave); font-size: 0.8rem; }
 .td-nome { font-weight: 600; }
 .td-email { color: var(--cor-texto-suave); font-size: 0.85rem; }
 .td-centro { text-align: center; }

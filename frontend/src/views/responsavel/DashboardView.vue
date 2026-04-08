@@ -34,6 +34,12 @@
       </div>
     </div>
 
+    <!-- Gráficos -->
+    <div v-if="!carregando" class="graficos-grid">
+      <GraficoStatusTarefas :tarefas="tarefas" />
+      <GraficoFilhosPontos :membros="membros" />
+    </div>
+
     <!-- Membros -->
     <section class="secao">
       <h2 class="secao-titulo">Membros da família</h2>
@@ -47,7 +53,7 @@
             <p class="membro-nome">{{ m.nome }}</p>
             <span class="badge-papel" :class="m.papel">{{ labelPapel(m.papel) }}</span>
           </div>
-          <div class="membro-pts">
+          <div v-if="m.papel === 'filho'" class="membro-pts">
             <p class="pts-valor">⭐ {{ m.pontos_disponiveis }}</p>
             <p class="pts-label">pts</p>
           </div>
@@ -60,19 +66,19 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { usuariosService, tarefasService } from '@/services'
+import GraficoStatusTarefas from '@/components/charts/GraficoStatusTarefas.vue'
+import GraficoFilhosPontos from '@/components/charts/GraficoFilhosPontos.vue'
 
 const membros = ref([])
 const tarefas = ref([])
 const carregando = ref(true)
 
-const pendentes = computed(() => tarefas.value.filter((t) => t.status === 'pendente').length)
+const pendentes  = computed(() => tarefas.value.filter((t) => t.status === 'pendente').length)
 const aguardando = computed(() => tarefas.value.filter((t) => t.status === 'em_andamento').length)
 const concluidas = computed(() => tarefas.value.filter((t) => t.status === 'concluida').length)
 
 const CORES = ['#7c3aed','#ec4899','#06b6d4','#10b981','#f59e0b','#6366f1','#ef4444']
-function avatarCor(nome) {
-  return CORES[nome.charCodeAt(0) % CORES.length]
-}
+function avatarCor(nome) { return CORES[nome.charCodeAt(0) % CORES.length] }
 
 function labelPapel(p) {
   return { super_responsavel: 'Super Admin', responsavel: 'Responsável', filho: 'Filho(a)' }[p] ?? p
@@ -92,11 +98,7 @@ onMounted(async () => {
 <style scoped>
 .dashboard-resp { display: flex; flex-direction: column; gap: 1.75rem; }
 
-.titulo-pagina {
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--cor-texto);
-}
+.titulo-pagina { font-size: 1.6rem; font-weight: 800; color: var(--cor-texto); }
 
 /* Stats */
 .stats-grid {
@@ -128,11 +130,22 @@ onMounted(async () => {
 .stat-valor { font-size: 2rem; font-weight: 800; color: var(--cor-texto); line-height: 1; }
 .stat-label { font-size: 0.75rem; color: var(--cor-texto-suave); font-weight: 500; margin-top: 0.15rem; }
 
-/* Seção */
+/* Gráficos */
+.graficos-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .graficos-grid { grid-template-columns: 1fr; }
+}
+
+/* Membros */
 .secao { display: flex; flex-direction: column; gap: 1rem; }
 .secao-titulo { font-size: 1.1rem; font-weight: 700; }
 
-/* Membros */
 .membros-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -153,28 +166,19 @@ onMounted(async () => {
 .membro-card:hover { border-color: #c4b5fd; }
 
 .membro-avatar {
-  width: 44px;
-  height: 44px;
+  width: 44px; height: 44px;
   border-radius: 12px;
   color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 800;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.25rem; font-weight: 800; flex-shrink: 0;
 }
 
 .membro-info { flex: 1; min-width: 0; }
 .membro-nome { font-weight: 600; font-size: 0.92rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 .badge-papel {
-  display: inline-block;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 0.1rem 0.5rem;
-  border-radius: var(--raio-pill);
-  margin-top: 0.2rem;
+  display: inline-block; font-size: 0.68rem; font-weight: 700;
+  padding: 0.1rem 0.5rem; border-radius: var(--raio-pill); margin-top: 0.2rem;
 }
 .badge-papel.super_responsavel { background: #ede9fe; color: #6d28d9; }
 .badge-papel.responsavel { background: var(--cor-info-bg); color: #1e40af; }

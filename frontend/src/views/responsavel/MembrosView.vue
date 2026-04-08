@@ -22,7 +22,7 @@
           <p class="membro-email">{{ m.email }}</p>
           <span class="badge" :class="badgeClasse(m.papel)">{{ labelPapel(m.papel) }}</span>
         </div>
-        <div class="membro-pontos">
+        <div v-if="m.papel === 'filho'" class="membro-pontos">
           <p class="pts-valor">⭐ {{ m.pontos_disponiveis }}</p>
           <p class="pts-label">disponíveis</p>
           <p class="pts-acumulado">{{ m.pontos_acumulados }} acumulados</p>

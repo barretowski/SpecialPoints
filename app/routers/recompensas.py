@@ -29,14 +29,26 @@ async def criar_recompensa(
 
 @router.get("/", response_model=list[RecompensaPublica])
 async def listar_recompensas(
+    incluir_inativas: bool = False,
     usuario: Usuario = Depends(get_usuario_atual),
     db: AsyncSession = Depends(get_db),
 ):
-    query = select(Recompensa).where(
-        Recompensa.familia_id == usuario.familia_id,
-        Recompensa.ativa == True,
-    )
-    resultado = await db.execute(query.order_by(Recompensa.custo_pontos))
+    from app.models.usuario import PapelUsuario
+
+    query = select(Recompensa).where(Recompensa.familia_id == usuario.familia_id)
+
+    if usuario.papel == PapelUsuario.filho:
+        # Filho: só vê ativas com estoque disponível
+        query = query.where(
+            Recompensa.ativa == True,
+            (Recompensa.estoque == None) | (Recompensa.estoque > 0),
+        )
+    elif not incluir_inativas:
+        # Responsável sem flag: só ativas
+        query = query.where(Recompensa.ativa == True)
+    # else: responsável com incluir_inativas=true → tudo
+
+    resultado = await db.execute(query.order_by(Recompensa.ativa.desc(), Recompensa.custo_pontos))
     return resultado.scalars().all()
 
 

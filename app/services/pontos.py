@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.meta import Meta, StatusMeta
 from app.models.notificacao import Notificacao, TipoNotificacao
 from app.models.transacao_ponto import TipoTransacao, TransacaoPonto
-from app.models.usuario import Usuario
+from app.models.usuario import PapelUsuario, Usuario
 
 
 async def creditar(
@@ -16,6 +16,8 @@ async def creditar(
     tarefa_id: int | None = None,
     observacao: str | None = None,
 ) -> TransacaoPonto:
+    if usuario.papel != PapelUsuario.filho:
+        raise ValueError(f"Pontos só podem ser creditados a filhos. Papel recebido: {usuario.papel}")
     usuario.pontos_disponiveis += quantidade
     usuario.pontos_acumulados += quantidade
 
@@ -40,6 +42,8 @@ async def debitar(
     descricao: str,
     observacao: str | None = None,
 ) -> TransacaoPonto:
+    if usuario.papel != PapelUsuario.filho:
+        raise ValueError(f"Pontos só podem ser debitados de filhos. Papel recebido: {usuario.papel}")
     usuario.pontos_disponiveis -= quantidade
 
     transacao = TransacaoPonto(

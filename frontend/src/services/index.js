@@ -30,7 +30,7 @@ export const tarefasService = {
 
 // Recompensas
 export const recompensasService = {
-  listar: () => api.get('/recompensas/'),
+  listar: (params) => api.get('/recompensas/', { params }),
   obter: (id) => api.get(`/recompensas/${id}`),
   criar: (dados) => api.post('/recompensas/', dados),
   atualizar: (id, dados) => api.patch(`/recompensas/${id}`, dados),
