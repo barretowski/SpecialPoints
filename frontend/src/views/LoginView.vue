@@ -4,7 +4,7 @@
       <div class="logo-wrap">
         <img src="@/assets/logo.png" alt="SpecialPoints" class="logo-img" />
       </div>
-      <h1 class="titulo">SpecialPoints</h1>
+      <h1 class="titulo">SpecialPoints - ABA</h1>
       <p class="subtitulo">Entre na sua conta</p>
 
       <form @submit.prevent="entrar" novalidate class="form">

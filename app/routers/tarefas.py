@@ -66,7 +66,12 @@ async def listar_tarefas(
     query = select(Tarefa).where(Tarefa.familia_id == usuario.familia_id)
 
     if usuario.papel == PapelUsuario.filho:
-        query = query.where(Tarefa.atribuido_a_id == usuario.id, Tarefa.ativa == True)
+        agora = datetime.now(timezone.utc)
+        query = query.where(
+            Tarefa.atribuido_a_id == usuario.id,
+            Tarefa.ativa == True,
+            (Tarefa.disponivel_em == None) | (Tarefa.disponivel_em <= agora),
+        )
 
     if status_filtro:
         query = query.where(Tarefa.status == status_filtro)
@@ -211,6 +216,9 @@ async def aprovar_tarefa(
     _DELTAS = {"diaria": timedelta(days=1), "semanal": timedelta(weeks=1), "mensal": timedelta(days=30)}
     if tarefa.recorrencia and tarefa.recorrencia in _DELTAS:
         delta = _DELTAS[tarefa.recorrencia]
+        agora = datetime.now(timezone.utc)
+        # A nova tarefa só fica visível para o filho após o intervalo
+        nova_disponivel_em = agora + delta
         nova_data_limite = (tarefa.data_limite + delta) if tarefa.data_limite else None
         nova = Tarefa(
             familia_id=tarefa.familia_id,
@@ -222,18 +230,12 @@ async def aprovar_tarefa(
             categoria_id=tarefa.categoria_id,
             recorrencia=tarefa.recorrencia,
             ativa=tarefa.ativa,
+            disponivel_em=nova_disponivel_em,
             data_limite=nova_data_limite,
         )
         db.add(nova)
-        if tarefa.atribuido_a_id:
-            await notificar(
-                db,
-                tarefa.atribuido_a_id,
-                TipoNotificacao.tarefa_atribuida,
-                "Nova tarefa recorrente",
-                f'A tarefa recorrente "{tarefa.titulo}" foi renovada ({tarefa.pontos} pts).',
-                referencia_tipo="tarefa",
-            )
+        # Notificação será enviada quando a tarefa ficar disponível (no futuro)
+        # Por ora, sem notificação imediata para não confundir o filho
 
     await db.commit()
     await db.refresh(tarefa)

@@ -44,6 +44,7 @@ class TarefaPublica(BaseModel):
     status: StatusTarefa
     ativa: bool
     recorrencia: str | None
+    disponivel_em: datetime | None
     data_limite: datetime | None
     concluida_em: datetime | None
     criado_em: datetime

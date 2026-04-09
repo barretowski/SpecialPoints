@@ -44,6 +44,9 @@
               <span v-else-if="t.data_limite" class="tag-prazo">
                 📅 {{ formatarData(t.data_limite) }}
               </span>
+              <span v-if="t.disponivel_em && new Date(t.disponivel_em) > new Date()" class="tag-aguardando">
+                🕐 Disponível {{ formatarData(t.disponivel_em) }}
+              </span>
             </div>
           </div>
 
@@ -304,6 +307,11 @@ onMounted(carregar)
 
 .tag-prazo {
   font-size: 0.72rem; background: var(--cor-info-bg); color: #1e40af;
+  padding: 0.12rem 0.45rem; border-radius: 999px; font-weight: 600;
+}
+
+.tag-aguardando {
+  font-size: 0.72rem; background: #f0f9ff; color: #0369a1;
   padding: 0.12rem 0.45rem; border-radius: 999px; font-weight: 600;
 }
 
