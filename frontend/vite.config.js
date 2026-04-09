@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { fileURLToPath, URL } from 'node:url'
 
+// build: 2026-04-09
 export default defineConfig({
   plugins: [vue()],
   resolve: {
