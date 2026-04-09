@@ -13,6 +13,7 @@ class CriarTarefaInput(BaseModel):
     atribuido_a_id: int | None = None
     data_limite: datetime | None = None
     recorrencia: str | None = None  # diaria | semanal | mensal
+    aprovacao_automatica: bool = False
 
 
 class AtualizarTarefaInput(BaseModel):
@@ -24,6 +25,7 @@ class AtualizarTarefaInput(BaseModel):
     data_limite: datetime | None = None
     ativa: bool | None = None
     recorrencia: str | None = None
+    aprovacao_automatica: bool | None = None
 
 
 class RejeitarTarefaInput(BaseModel):
@@ -43,6 +45,7 @@ class TarefaPublica(BaseModel):
     pontos: int
     status: StatusTarefa
     ativa: bool
+    aprovacao_automatica: bool
     recorrencia: str | None
     disponivel_em: datetime | None
     data_limite: datetime | None

@@ -51,17 +51,20 @@
           <h3 class="recompensa-titulo">{{ r.titulo }}</h3>
           <p v-if="r.descricao" class="recompensa-desc">{{ r.descricao }}</p>
 
-          <div class="recompensa-progresso">
-            <div class="progresso-barra">
-              <div
-                class="progresso-fill"
-                :style="{ width: `${Math.min(100, Math.round((pontos / r.custo_pontos) * 100))}%` }"
-              ></div>
+          <!-- Economia de fichas visual -->
+          <div class="fichas-wrap">
+            <div class="fichas-grid">
+              <span
+                v-for="i in fichasTotal(r.custo_pontos)"
+                :key="i"
+                class="ficha"
+                :class="i <= fichasGanhas(r.custo_pontos) ? 'ficha-cheia' : 'ficha-vazia'"
+              >⭐</span>
             </div>
-            <p class="progresso-label">
+            <p class="fichas-label">
               {{ pontos >= r.custo_pontos
-                ? `⭐ ${r.custo_pontos} pts`
-                : `Faltam ${r.custo_pontos - pontos} pts` }}
+                ? `✓ ${r.custo_pontos} pts`
+                : `${pontos} / ${r.custo_pontos} pts` }}
             </p>
           </div>
 
@@ -166,6 +169,13 @@ const toast = reactive({ visivel: false, msg: '', tipo: 'sucesso' })
 
 const pontos = computed(() => auth.usuario?.pontos_disponiveis || 0)
 const pendentesCount = computed(() => resgates.value.filter((r) => r.status === 'pendente').length)
+
+// Economia de fichas: máximo 10 fichas visuais, cada ficha representa custo/10 pontos
+const MAX_FICHAS = 10
+function fichasTotal(custo) { return MAX_FICHAS }
+function fichasGanhas(custo) {
+  return Math.min(MAX_FICHAS, Math.round((pontos.value / custo) * MAX_FICHAS))
+}
 
 function iconeStatus(status) {
   const mapa = { pendente: '⏳', aprovado: '✅', entregue: '🎉', recusado: '❌' }
@@ -331,9 +341,17 @@ onMounted(async () => {
 .recompensa-desc { font-size: 0.78rem; color: var(--cor-texto-suave); line-height: 1.4; }
 
 .recompensa-progresso { display: flex; flex-direction: column; gap: 0.3rem; }
-.progresso-barra { height: 6px; background: var(--cor-borda); border-radius: var(--raio-pill); overflow: hidden; }
-.progresso-fill { height: 100%; background: var(--grad-primario); border-radius: var(--raio-pill); transition: width 0.5s ease; }
-.progresso-label { font-size: 0.72rem; font-weight: 600; color: var(--cor-texto-suave); }
+/* Economia de fichas */
+.fichas-wrap { display: flex; flex-direction: column; gap: 0.3rem; }
+.fichas-grid { display: flex; flex-wrap: wrap; gap: 2px; }
+.ficha { font-size: 0.9rem; line-height: 1; transition: filter 0.3s, transform 0.3s; }
+.ficha-vazia { filter: grayscale(1) opacity(0.25); }
+.ficha-cheia { filter: none; animation: brilho 0.4s ease backwards; }
+@keyframes brilho {
+  from { transform: scale(0.5); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+.fichas-label { font-size: 0.72rem; font-weight: 700; color: var(--cor-texto-suave); }
 
 .btn-resgatar {
   width: 100%; padding: 0.55rem; border-radius: var(--raio);

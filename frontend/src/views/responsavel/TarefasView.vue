@@ -47,6 +47,7 @@
               <span v-if="t.disponivel_em && new Date(t.disponivel_em) > new Date()" class="tag-aguardando">
                 🕐 Disponível {{ formatarData(t.disponivel_em) }}
               </span>
+              <span v-if="t.aprovacao_automatica" class="tag-auto">⚡ Auto</span>
             </div>
           </div>
 
@@ -115,6 +116,16 @@
             <label>Descrição</label>
             <textarea v-model="modal.descricao" rows="2" />
           </div>
+          <label class="toggle-row">
+            <div class="toggle-wrap">
+              <input type="checkbox" v-model="modal.aprovacao_automatica" class="toggle-input" />
+              <span class="toggle-slider"></span>
+            </div>
+            <div class="toggle-info">
+              <span class="toggle-label">Aprovação automática</span>
+              <span class="toggle-desc">Pontos creditados imediatamente ao filho concluir</span>
+            </div>
+          </label>
           <p v-if="modal.erro" class="erro-texto">{{ modal.erro }}</p>
           <div class="modal-acoes">
             <button type="button" class="btn btn-ghost" @click="fecharModal">Cancelar</button>
@@ -163,7 +174,7 @@ const filtros = [
 const modal = reactive({
   aberto: false, editando: null,
   titulo: '', pontos: 10, descricao: '', atribuido_a_id: null,
-  recorrencia: null, data_limite_input: '', erro: '',
+  recorrencia: null, data_limite_input: '', aprovacao_automatica: false, erro: '',
 })
 
 const rejeitar = reactive({ aberto: false, tarefa: null, observacao: '' })
@@ -208,6 +219,7 @@ function abrirModal(t = null) {
   modal.atribuido_a_id = t?.atribuido_a_id || null
   modal.recorrencia = t?.recorrencia || null
   modal.data_limite_input = t?.data_limite ? t.data_limite.substring(0, 10) : ''
+  modal.aprovacao_automatica = t?.aprovacao_automatica || false
   modal.erro = ''
   modal.aberto = true
 }
@@ -239,6 +251,7 @@ async function salvarTarefa() {
     atribuido_a_id: modal.atribuido_a_id,
     recorrencia: modal.recorrencia || null,
     data_limite: modal.data_limite_input ? `${modal.data_limite_input}T23:59:59` : null,
+    aprovacao_automatica: modal.aprovacao_automatica,
   }
   try {
     if (modal.editando) {
@@ -345,6 +358,38 @@ onMounted(carregar)
 .toggle-ativa:hover { background: #c8e6c9; }
 .toggle-inativa { border-color: #bdbdbd; background: #f5f5f5; color: #757575; }
 .toggle-inativa:hover { background: #e0e0e0; }
+
+.tag-auto {
+  font-size: 0.72rem; background: #fef9c3; color: #713f12;
+  padding: 0.12rem 0.45rem; border-radius: 999px; font-weight: 700;
+}
+
+/* Toggle switch */
+.toggle-row {
+  display: flex; align-items: flex-start; gap: 0.75rem;
+  padding: 0.75rem; background: var(--cor-fundo); border-radius: var(--raio);
+  cursor: pointer; border: 1.5px solid var(--cor-borda); transition: border-color 0.15s;
+}
+.toggle-row:has(.toggle-input:checked) { border-color: var(--cor-primaria); background: var(--cor-primaria-clara); }
+
+.toggle-wrap { position: relative; flex-shrink: 0; width: 40px; height: 22px; margin-top: 0.1rem; }
+.toggle-input { opacity: 0; width: 0; height: 0; position: absolute; }
+.toggle-slider {
+  position: absolute; inset: 0; background: #cbd5e1; border-radius: 999px;
+  transition: background 0.2s;
+}
+.toggle-slider::before {
+  content: ''; position: absolute;
+  width: 16px; height: 16px; left: 3px; top: 3px;
+  background: #fff; border-radius: 50%;
+  transition: transform 0.2s; box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.toggle-input:checked + .toggle-slider { background: var(--cor-primaria); }
+.toggle-input:checked + .toggle-slider::before { transform: translateX(18px); }
+
+.toggle-info { display: flex; flex-direction: column; gap: 0.1rem; }
+.toggle-label { font-size: 0.88rem; font-weight: 600; color: var(--cor-texto); }
+.toggle-desc { font-size: 0.74rem; color: var(--cor-texto-suave); }
 
 .vazio { text-align: center; color: var(--cor-texto-suave); padding: 2rem; }
 

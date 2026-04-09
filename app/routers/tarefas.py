@@ -148,18 +148,67 @@ async def concluir_tarefa(
     if usuario.papel == PapelUsuario.filho and tarefa.atribuido_a_id != usuario.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Tarefa não atribuída a você")
 
-    tarefa.status = StatusTarefa.em_andamento
     tarefa.concluida_em = datetime.now(timezone.utc)
 
-    await notificar(
-        db,
-        tarefa.criado_por_id,
-        TipoNotificacao.tarefa_concluida,
-        "Tarefa concluída",
-        f'A tarefa "{tarefa.titulo}" foi marcada como concluída e aguarda aprovação.',
-        referencia_id=tarefa.id,
-        referencia_tipo="tarefa",
-    )
+    if tarefa.aprovacao_automatica:
+        # Credita pontos imediatamente sem precisar de aprovação do responsável
+        tarefa.status = StatusTarefa.concluida
+
+        if tarefa.atribuido_a_id:
+            resultado_filho = await db.execute(select(Usuario).where(Usuario.id == tarefa.atribuido_a_id))
+            filho = resultado_filho.scalar_one_or_none()
+            if filho:
+                await creditar(
+                    db,
+                    filho,
+                    tarefa.pontos,
+                    TipoTransacao.credito,
+                    f'Tarefa concluída (auto): "{tarefa.titulo}"',
+                    tarefa_id=tarefa.id,
+                )
+                await verificar_metas(db, filho, tarefa.pontos)
+                await verificar_e_conceder(db, filho)
+                await notificar(
+                    db,
+                    filho.id,
+                    TipoNotificacao.tarefa_aprovada,
+                    "Tarefa concluída! ⭐",
+                    f'Parabéns! "{tarefa.titulo}" foi concluída. +{tarefa.pontos} pontos!',
+                    referencia_id=tarefa.id,
+                    referencia_tipo="tarefa",
+                )
+
+        # Recria se recorrente
+        _DELTAS = {"diaria": timedelta(days=1), "semanal": timedelta(weeks=1), "mensal": timedelta(days=30)}
+        if tarefa.recorrencia and tarefa.recorrencia in _DELTAS:
+            delta = _DELTAS[tarefa.recorrencia]
+            agora = datetime.now(timezone.utc)
+            nova = Tarefa(
+                familia_id=tarefa.familia_id,
+                criado_por_id=tarefa.criado_por_id,
+                atribuido_a_id=tarefa.atribuido_a_id,
+                titulo=tarefa.titulo,
+                descricao=tarefa.descricao,
+                pontos=tarefa.pontos,
+                categoria_id=tarefa.categoria_id,
+                recorrencia=tarefa.recorrencia,
+                aprovacao_automatica=tarefa.aprovacao_automatica,
+                ativa=tarefa.ativa,
+                disponivel_em=agora + delta,
+                data_limite=(tarefa.data_limite + delta) if tarefa.data_limite else None,
+            )
+            db.add(nova)
+    else:
+        tarefa.status = StatusTarefa.em_andamento
+        await notificar(
+            db,
+            tarefa.criado_por_id,
+            TipoNotificacao.tarefa_concluida,
+            "Tarefa concluída",
+            f'A tarefa "{tarefa.titulo}" foi marcada como concluída e aguarda aprovação.',
+            referencia_id=tarefa.id,
+            referencia_tipo="tarefa",
+        )
 
     await db.commit()
     await db.refresh(tarefa)
