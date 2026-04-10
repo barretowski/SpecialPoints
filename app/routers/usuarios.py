@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database import get_db
 from app.dependencies import get_usuario_atual, requer_responsavel, requer_super_responsavel
 from app.models.usuario import PapelUsuario, Usuario
-from app.schemas.usuario import AtualizarUsuarioInput, UsuarioPublico
+from app.schemas.usuario import AtualizarMembroInput, AtualizarUsuarioInput, UsuarioPublico
 from app.services.auth import hash_senha, verificar_senha
 
 
@@ -119,6 +119,40 @@ async def criar_membro_familia(
     await db.commit()
     await db.refresh(novo)
     return novo
+
+
+@router.patch("/{usuario_id}", response_model=UsuarioPublico)
+async def editar_membro(
+    usuario_id: int,
+    dados: AtualizarMembroInput,
+    responsavel: Usuario = Depends(requer_responsavel()),
+    db: AsyncSession = Depends(get_db),
+):
+    resultado = await db.execute(select(Usuario).where(Usuario.id == usuario_id))
+    alvo = resultado.scalar_one_or_none()
+
+    if not alvo:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuário não encontrado")
+
+    if alvo.familia_id != responsavel.familia_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Usuário não pertence à sua família")
+
+    if dados.email and dados.email != alvo.email:
+        existente = (await db.execute(select(Usuario).where(Usuario.email == dados.email))).scalar_one_or_none()
+        if existente:
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="E-mail já cadastrado")
+        alvo.email = dados.email
+
+    if dados.nome is not None:
+        alvo.nome = dados.nome
+
+    if dados.nova_senha is not None:
+        alvo.senha_hash = hash_senha(dados.nova_senha)
+        alvo.deve_trocar_senha = False
+
+    await db.commit()
+    await db.refresh(alvo)
+    return alvo
 
 
 @router.delete("/{usuario_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -34,3 +34,9 @@ class UsuarioPublico(BaseModel):
 class AtualizarUsuarioInput(BaseModel):
     nome: str | None = Field(default=None, min_length=2, max_length=100)
     avatar_url: str | None = None
+
+
+class AtualizarMembroInput(BaseModel):
+    nome: str | None = Field(default=None, min_length=2, max_length=100)
+    email: EmailStr | None = None
+    nova_senha: str | None = Field(default=None, min_length=6)
