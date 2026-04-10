@@ -12,6 +12,7 @@ class Familia(Base):
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     nome: Mapped[str] = mapped_column(String(100), nullable=False)
     codigo_convite: Mapped[str] = mapped_column(String(12), unique=True, nullable=False, index=True)
+    ativo: Mapped[bool] = mapped_column(default=True, nullable=False)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     atualizado_em: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()

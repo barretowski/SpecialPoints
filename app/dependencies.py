@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database import get_db
+from app.models.familia import Familia
 from app.models.usuario import PapelUsuario, Usuario
 from app.services.auth import decodificar_token
 
@@ -30,6 +31,15 @@ async def get_usuario_atual(
 
     if not usuario:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Usuário não encontrado")
+
+    # Admin não tem família, não precisa verificar
+    if usuario.papel != PapelUsuario.admin and usuario.familia_id:
+        familia = (await db.execute(select(Familia).where(Familia.id == usuario.familia_id))).scalar_one_or_none()
+        if familia and not familia.ativo:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Acesso suspenso. Entre em contato com o administrador.",
+            )
 
     return usuario
 

@@ -88,6 +88,7 @@ async def listar_familias(
             "id": f.id,
             "nome": f.nome,
             "codigo_convite": f.codigo_convite,
+            "ativo": f.ativo,
             "criado_em": f.criado_em,
             "total_membros": total_membros,
         })
@@ -215,6 +216,29 @@ async def criar_membro(
     await db.commit()
     await db.refresh(usuario)
     return usuario
+
+
+@router.patch("/familias/{familia_id}/ativar")
+async def ativar_desativar_familia(
+    familia_id: int,
+    ativo: bool,
+    _: Usuario = Depends(requer_admin()),
+    db: AsyncSession = Depends(get_db),
+):
+    resultado = await db.execute(select(Familia).where(Familia.id == familia_id))
+    familia = resultado.scalar_one_or_none()
+    if not familia:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Família não encontrada")
+
+    familia.ativo = ativo
+
+    # Ativa/desativa todos os membros junto com a família
+    membros = (await db.execute(select(Usuario).where(Usuario.familia_id == familia_id))).scalars().all()
+    for membro in membros:
+        membro.ativo = ativo
+
+    await db.commit()
+    return {"id": familia.id, "nome": familia.nome, "ativo": familia.ativo, "membros_afetados": len(membros)}
 
 
 @router.delete("/familias/{familia_id}", status_code=status.HTTP_204_NO_CONTENT)

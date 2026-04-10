@@ -18,20 +18,33 @@
               <th>Nome</th>
               <th>Código de convite</th>
               <th>Membros</th>
+              <th>Status</th>
               <th>Criado em</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="g in grupos" :key="g.id">
+            <tr v-for="g in grupos" :key="g.id" :class="{ 'linha-inativa': !g.ativo }">
               <td class="td-id">{{ g.id }}</td>
               <td class="td-nome">{{ g.nome }}</td>
               <td><code class="codigo">{{ g.codigo_convite }}</code></td>
               <td class="td-centro">{{ g.total_membros }}</td>
+              <td class="td-centro">
+                <span class="badge" :class="g.ativo ? 'badge-sucesso' : 'badge-erro'">
+                  {{ g.ativo ? 'Ativo' : 'Suspenso' }}
+                </span>
+              </td>
               <td class="td-data">{{ formatarData(g.criado_em) }}</td>
               <td class="td-acoes">
                 <RouterLink :to="`/admin/grupos/${g.id}`" class="btn-acao btn-ver">Ver</RouterLink>
                 <button class="btn-acao btn-editar" @click="abrirModal(g)">Editar</button>
+                <button
+                  class="btn-acao"
+                  :class="g.ativo ? 'btn-suspender' : 'btn-reativar'"
+                  @click="confirmarToggle(g)"
+                >
+                  {{ g.ativo ? 'Suspender' : 'Reativar' }}
+                </button>
                 <button class="btn-acao btn-excluir" @click="confirmarExcluir(g)">Excluir</button>
               </td>
             </tr>
@@ -67,6 +80,31 @@
       </div>
     </div>
 
+    <!-- Confirmação suspender/reativar -->
+    <div v-if="toggle.aberto" class="overlay" @click.self="toggle.aberto = false">
+      <div class="modal card">
+        <h2 class="modal-titulo">{{ toggle.grupo?.ativo ? 'Suspender família?' : 'Reativar família?' }}</h2>
+        <p class="modal-desc" v-if="toggle.grupo?.ativo">
+          Ao suspender <strong>{{ toggle.grupo?.nome }}</strong>, todos os membros perderão acesso imediatamente.
+        </p>
+        <p class="modal-desc" v-else>
+          Ao reativar <strong>{{ toggle.grupo?.nome }}</strong>, todos os membros voltarão a ter acesso.
+        </p>
+        <p v-if="toggle.erro" class="erro-texto">{{ toggle.erro }}</p>
+        <div class="modal-acoes">
+          <button class="btn btn-secundario" @click="toggle.aberto = false">Cancelar</button>
+          <button
+            class="btn"
+            :class="toggle.grupo?.ativo ? 'btn-perigo' : 'btn-primario'"
+            :disabled="toggle.carregando"
+            @click="executarToggle"
+          >
+            {{ toggle.carregando ? 'Aguarde…' : (toggle.grupo?.ativo ? 'Suspender' : 'Reativar') }}
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Confirmação exclusão -->
     <div v-if="excluir.aberto" class="overlay" @click.self="excluir.aberto = false">
       <div class="modal card">
@@ -95,6 +133,7 @@ const grupos = ref([])
 const carregando = ref(true)
 
 const modal = reactive({ aberto: false, editando: null, nome: '', erro: '', salvando: false })
+const toggle = reactive({ aberto: false, grupo: null, carregando: false, erro: '' })
 const excluir = reactive({ aberto: false, grupo: null, carregando: false, erro: '' })
 
 async function carregar() {
@@ -130,6 +169,24 @@ async function salvar() {
     modal.erro = e.response?.data?.detail || 'Erro ao salvar.'
   } finally {
     modal.salvando = false
+  }
+}
+
+function confirmarToggle(grupo) {
+  Object.assign(toggle, { aberto: true, grupo, carregando: false, erro: '' })
+}
+
+async function executarToggle() {
+  toggle.carregando = true
+  toggle.erro = ''
+  try {
+    await adminService.ativarGrupo(toggle.grupo.id, !toggle.grupo.ativo)
+    toggle.aberto = false
+    await carregar()
+  } catch (e) {
+    toggle.erro = e.response?.data?.detail || 'Erro ao alterar status.'
+  } finally {
+    toggle.carregando = false
   }
 }
 
@@ -242,8 +299,15 @@ onMounted(async () => {
 .btn-ver:hover { background: #d4d0ff; }
 .btn-editar { background: #e8f5e9; color: #2e7d32; }
 .btn-editar:hover { background: #c8e6c9; }
+.btn-suspender { background: #fff3e0; color: #e65100; }
+.btn-suspender:hover { background: #ffe0b2; }
+.btn-reativar { background: #e8f5e9; color: #2e7d32; }
+.btn-reativar:hover { background: #c8e6c9; }
 .btn-excluir { background: #ffebee; color: #c62828; }
 .btn-excluir:hover { background: #ffcdd2; }
+
+.linha-inativa td { opacity: 0.55; }
+.linha-inativa { background: #fafafa; }
 
 .vazio {
   text-align: center;

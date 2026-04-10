@@ -14,6 +14,8 @@ export const usuariosService = {
   atualizar: (dados) => api.patch('/usuarios/me', dados),
   trocarSenha: (dados) => api.patch('/usuarios/me/senha', dados),
   criarMembro: (dados) => api.post('/usuarios/familia/membros', dados),
+  editarMembro: (id, dados) => api.patch(`/usuarios/${id}`, dados),
+  removerMembro: (id) => api.delete(`/usuarios/${id}`),
 }
 
 // Tarefas
@@ -86,6 +88,7 @@ export const adminService = {
   obterGrupo: (id) => api.get(`/admin/familias/${id}`),
   atualizarGrupo: (id, dados) => api.patch(`/admin/familias/${id}`, dados),
   deletarGrupo: (id) => api.delete(`/admin/familias/${id}`),
+  ativarGrupo: (id, ativo) => api.patch(`/admin/familias/${id}/ativar`, null, { params: { ativo } }),
   membrosGrupo: (id) => api.get(`/admin/familias/${id}/membros`),
   criarMembro: (familiaId, dados) => api.post(`/admin/familias/${familiaId}/membros`, dados),
   listarUsuarios: (params) => api.get('/admin/usuarios', { params }),
